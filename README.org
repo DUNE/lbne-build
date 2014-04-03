@@ -1,0 +1,23 @@
+#+TITLE: Build LBNE Software Suites
+
+This package is used to build the software suites for LBNE.  It makes use of [[https://code.google.com/p/waf/][waf]] and [[https://github.com/brettviren/worch][worch]].
+
+*Note: this is not yet ready to use.*
+
+* Instructions
+
+In general, to install the software:
+
+#+BEGIN_EXAMPLE
+$ git clone https://github.com/LBNE/lbne-build.git
+$ cd lbne-build
+$ ./waf --prefix  # one time
+# ./waf --install=/path/to/install/area \
+        --orch-config=config/suite-<SUITE>.cfg \
+          configure build 
+#+END_EXAMPLE
+
+
+
+
+
