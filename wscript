@@ -5,6 +5,11 @@ top = '.'
 out = 'tmp'
 
 import os
+if not os.path.exists('worch'):
+    assert 0 == os.system('git clone https://github.com/brettviren/worch.git')
+
+
+import os
 mydir = os.path.realpath('.')
 
 import sys
