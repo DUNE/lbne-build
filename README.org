@@ -11,8 +11,8 @@ In general, to install the software:
 #+BEGIN_EXAMPLE
 $ git clone https://github.com/LBNE/lbne-build.git
 $ cd lbne-build
-$ ./waf --prefix  # one time
-# ./waf --install=/path/to/install/area \
+$ ./waf --version  # one time
+# ./waf --prefix=/path/to/install/area \
         --orch-config=config/suite-<SUITE>.cfg \
           configure build 
 #+END_EXAMPLE
