@@ -1,0 +1,113 @@
+From 47d0a80d69e4d6be7e5ae3f06aefa32c523dfc4f Mon Sep 17 00:00:00 2001
+From: Pere Mato <pere.mato@cern.ch>
+Date: Fri, 14 Mar 2014 17:59:57 +0100
+Subject: [PATCH] Changes associated to builtin_xrootd option
+
+---
+ cmake/modules/SearchInstalledSoftware.cmake | 7 +++++--
+ net/netxng/CMakeLists.txt                   | 2 +-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/cmake/modules/SearchInstalledSoftware.cmake b/cmake/modules/SearchInstalledSoftware.cmake
+index ff9c4e8..7b1897c 100644
+--- a/cmake/modules/SearchInstalledSoftware.cmake
++++ b/cmake/modules/SearchInstalledSoftware.cmake
+@@ -575,6 +575,8 @@ if(builtin_xrootd)
+   set(xrootd_version 3.3.6)
+   set(xrootd_versionnum 300030006)
+   message(STATUS "Downloading and building XROOTD version ${xrootd_version}") 
++  string(REPLACE "-Wall " "" __cxxflags "${CMAKE_CXX_FLAGS}")                        # Otherwise it produces tones of warnings
++  string(REPLACE "-W " "" __cxxflags "${__cxxflags} -Wno-deprecated-declarations -Wno-duplicate-decl-specifier")
+   ExternalProject_Add(
+     XROOTD
+     URL http://xrootd.org/download/v${xrootd_version}/xrootd-${xrootd_version}.tar.gz
+@@ -583,12 +585,13 @@ if(builtin_xrootd)
+                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+-               -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
++               -DCMAKE_CXX_FLAGS=${__cxxflags}
+   )
+   set(XROOTD_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include/xrootd ${CMAKE_BINARY_DIR}/include/xrootd/private)
+   set(XROOTD_LIBRARIES ${CMAKE_BINARY_DIR}/lib/libXrdMain${CMAKE_SHARED_LIBRARY_SUFFIX}
+                        ${CMAKE_BINARY_DIR}/lib/libXrdUtils${CMAKE_SHARED_LIBRARY_SUFFIX}
+-                       ${CMAKE_BINARY_DIR}/lib/libXrdClient${CMAKE_SHARED_LIBRARY_SUFFIX})
++                       ${CMAKE_BINARY_DIR}/lib/libXrdClient${CMAKE_SHARED_LIBRARY_SUFFIX}
++                       ${CMAKE_BINARY_DIR}/lib/libXrdCl${CMAKE_SHARED_LIBRARY_SUFFIX})
+   set(XROOTD_CFLAGS "-DROOTXRDVERS=${xrootd_versionnum}")
+   set(xrootd ON CACHE BOOL "" FORCE)
+ endif()
+diff --git a/net/netxng/CMakeLists.txt b/net/netxng/CMakeLists.txt
+index 554c3b5..915c0fb 100644
+--- a/net/netxng/CMakeLists.txt
++++ b/net/netxng/CMakeLists.txt
+@@ -8,6 +8,6 @@ add_definitions(${XROOTD_CFLAGS})
+ 
+ ROOT_GENERATE_DICTIONARY(G__NetxNG *.h MODULE NetxNG LINKDEF LinkDef.h)
+ 
+-ROOT_LINKER_LIBRARY(NetxNG *.cxx G__NetxNG.cxx LIBRARIES ${XROOTD_LIBRARIES} DEPENDENCIES RIO Thread)
++ROOT_LINKER_LIBRARY(NetxNG *.cxx G__NetxNG.cxx LIBRARIES ${XROOTD_LIBRARIES} DEPENDENCIES Net RIO Thread)
+ 
+ ROOT_INSTALL_HEADERS()
+-- 
+2.0.3
+
+From 4ee2378c7691b4cfd641c6fb15a582dac32e64da Mon Sep 17 00:00:00 2001
+From: Pere Mato <pere.mato@cern.ch>
+Date: Sun, 16 Mar 2014 21:02:04 +0100
+Subject: [PATCH] Fix for building  netxng for CMake
+
+---
+ cmake/modules/FindXROOTD.cmake | 2 +-
+ net/netx/CMakeLists.txt        | 3 +++
+ net/netxng/CMakeLists.txt      | 6 ++++++
+ 3 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/cmake/modules/FindXROOTD.cmake b/cmake/modules/FindXROOTD.cmake
+index db703f4..3ee31ab 100644
+--- a/cmake/modules/FindXROOTD.cmake
++++ b/cmake/modules/FindXROOTD.cmake
+@@ -83,7 +83,7 @@ if(XROOTD_FOUND)
+       list(APPEND XROOTD_LIBRARIES ${XROOTD_XrdNetUtil_LIBRARY})
+     endif ()
+   else()
+-    foreach(l XrdMain XrdUtils XrdClient)
++    foreach(l XrdMain XrdUtils XrdClient XrdCl)
+       find_library(XROOTD_${l}_LIBRARY
+          NAMES ${l}
+          HINTS ${searchpath}
+diff --git a/net/netx/CMakeLists.txt b/net/netx/CMakeLists.txt
+index 6d7c5bd..c526638 100644
+--- a/net/netx/CMakeLists.txt
++++ b/net/netx/CMakeLists.txt
+@@ -16,3 +16,6 @@ ROOT_LINKER_LIBRARY(Netx *.cxx G__Netx.cxx LIBRARIES ${XROOTD_LIBRARIES} DEPENDE
+ 
+ ROOT_INSTALL_HEADERS()
+ 
++if(builtin_xrootd)
++  add_dependencies(Netx XROOTD)
++endif()
+diff --git a/net/netxng/CMakeLists.txt b/net/netxng/CMakeLists.txt
+index 915c0fb..9eab1cf 100644
+--- a/net/netxng/CMakeLists.txt
++++ b/net/netxng/CMakeLists.txt
+@@ -3,6 +3,8 @@
+ # @author Lukasz Janyst <ljanyst@cern.ch>
+ ############################################################################
+ 
++ROOT_USE_PACKAGE(net/net)
++
+ include_directories(${XROOTD_INCLUDE_DIRS})
+ add_definitions(${XROOTD_CFLAGS})
+ 
+@@ -11,3 +13,7 @@ ROOT_GENERATE_DICTIONARY(G__NetxNG *.h MODULE NetxNG LINKDEF LinkDef.h)
+ ROOT_LINKER_LIBRARY(NetxNG *.cxx G__NetxNG.cxx LIBRARIES ${XROOTD_LIBRARIES} DEPENDENCIES Net RIO Thread)
+ 
+ ROOT_INSTALL_HEADERS()
++
++if(builtin_xrootd)
++  add_dependencies(NetxNG XROOTD)
++endif()
+-- 
+2.0.3
+
