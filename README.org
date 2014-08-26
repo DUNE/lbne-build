@@ -17,7 +17,28 @@ $ ./waf --version  # one time
           configure build 
 #+END_EXAMPLE
 
+See the prerequisites section for your platform below.
 
+* Prerequisites
 
+On all platforms, some OS-level packages are implicitly required.  
 
+ - compiler :: a compiler capable to build the version of GCC from source
+ - autoconf :: and related tools
 
+** Red Hat Enterprise based (eg. Scientific Linux) 
+
+A base install of SL6.4 has most of the packages required.  The exceptions are:
+
+ - t.b.d.
+
+** Debian based (eg. Ubuntu)
+
+You will need at least these:
+
+#+BEGIN_EXAMPLE
+    $ sudo apt-get install \
+           libbz2-dev libx11-dev  libxmu-dev \
+           libgl1-mesa-dev libglu1-mesa-dev \
+           doxygen-latex 
+#+END_EXAMPLE
