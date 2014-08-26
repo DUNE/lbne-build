@@ -1,1 +1,310 @@
-/home/bviren/org/web/notes/2014/08/12/notes.org
+Notes on the =gcc-on-ubuntu= branch.
+
+* [2014-08-12 Tue 13:47] Pure-CMake build of LBNE code on Ubuntu 14.04
+
+Specifically, the "FNAL Core" parts of art.
+
+** Externals
+
+#+BEGIN_EXAMPLE
+  $ git clone git@github.com:LBNE/lbne-build.git
+  $ git clone git@github.com:LBNE/lbne-build.git
+  $ ./waf --prefix=../install --orch-config=config/suite-larsoft.cfg configure
+  $ ./waf
+  ...
+  command failed with code 1, log in /data0/projects/lbne-pure-cmake/lbne-build/tmp/logs/worch_modules_prepare.log.txt
+  reproduce with: /data0/projects/lbne-pure-cmake/lbne-build/tmp/builds/modules-3.2.10-/worch_modules_prepare.repo.sh
+#+END_EXAMPLE
+
+* [2014-08-22 Fri 11:46] Second stab using Patrick's branch on Ubuntu 14.04
+
+#+BEGIN_EXAMPLE
+  $ cd /data0/projects/lbne-pure-cmake/lbne-build
+  $ git pull
+  $ git checkout for-art1.10.00b 
+  $ rm -rf tmp
+  $ ./waf --prefix=../install-for-art1.10.00b --orch-config=config/suite-larsoft.cfg configure
+  $ ./waf
+#+END_EXAMPLE
+
+* [2014-08-25 Mon 09:02] Failure due to multiarch
+
+#+BEGIN_EXAMPLE
+  [ 55/255] gcc_build: tmp/controls/gcc_prepare -> tmp/builds/gcc-4.8.2-/gcc/xgcc tmp/controls/gcc_build
+  command failed with code 2, log in /data0/projects/lbne-pure-cmake/lbne-build/tmp/logs/worch_gcc_build.log.txt
+  reproduce with: /data0/projects/lbne-pure-cmake/lbne-build/tmp/builds/gcc-4.8.2-/worch_gcc_build.repo.sh
+  Waf: Leaving directory `/data0/projects/lbne-pure-cmake/lbne-build/tmp'
+  Build failed
+   -> task in 'gcc_build' failed (exit status 2): 
+          {task 139949667139344: gcc_build gcc_prepare -> xgcc,gcc_build}
+  ''
+#+END_EXAMPLE
+
+
+Bottom of log file:
+
+#+BEGIN_EXAMPLE
+/data0/projects/lbne-pure-cmake/lbne-build/tmp/builds/gcc-4.8.2-/./gcc/xgcc -B/data0/projects/lbne-pure-cmake/lbne-build/tmp/builds/gcc-4.8.2-/./gcc/ -B/data0/projects/lbne-pure-cmake/install-for-art1.10.00b/gcc/4.8.2/x86_64-unknown-linux-gnu/bin/ -B/data0/projects/lbne-pure-cmake/install-for-art1.10.00b/gcc/4.8.2/x86_64-unknown-linux-gnu/lib/ -isystem /data0/projects/lbne-pure-cmake/install-for-art1.10.00b/gcc/4.8.2/x86_64-unknown-linux-gnu/include -isystem /data0/projects/lbne-pure-cmake/install-for-art1.10.00b/gcc/4.8.2/x86_64-unknown-linux-gnu/sys-include    -g -O2 -fPIC -O2  -g -O2 -fPIC -DIN_GCC   -W -Wall -Wno-narrowing -Wwrite-strings -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wold-style-definition  -isystem ./include   -fPIC -mlong-double-80 -g -DIN_LIBGCC2 -fbuilding-libgcc -fno-stack-protector   -fPIC -mlong-double-80 -I. -I. -I../.././gcc -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/. -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/../gcc -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/../include -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/config/libbid -DENABLE_DECIMAL_BID_FORMAT -DHAVE_CC_TLS  -DUSE_TLS -o _mulvsi3.o -MT _mulvsi3.o -MD -MP -MF _mulvsi3.dep -DL_mulvsi3 -c /data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/libgcc2.c -fvisibility=hidden -DHIDE_EXPORTS
+/data0/projects/lbne-pure-cmake/lbne-build/tmp/builds/gcc-4.8.2-/./gcc/xgcc -B/data0/projects/lbne-pure-cmake/lbne-build/tmp/builds/gcc-4.8.2-/./gcc/ -B/data0/projects/lbne-pure-cmake/install-for-art1.10.00b/gcc/4.8.2/x86_64-unknown-linux-gnu/bin/ -B/data0/projects/lbne-pure-cmake/install-for-art1.10.00b/gcc/4.8.2/x86_64-unknown-linux-gnu/lib/ -isystem /data0/projects/lbne-pure-cmake/install-for-art1.10.00b/gcc/4.8.2/x86_64-unknown-linux-gnu/include -isystem /data0/projects/lbne-pure-cmake/install-for-art1.10.00b/gcc/4.8.2/x86_64-unknown-linux-gnu/sys-include    -g -O2 -fPIC -O2  -g -O2 -fPIC -DIN_GCC   -W -Wall -Wno-narrowing -Wwrite-strings -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wold-style-definition  -isystem ./include   -fPIC -mlong-double-80 -g -DIN_LIBGCC2 -fbuilding-libgcc -fno-stack-protector   -fPIC -mlong-double-80 -I. -I. -I../.././gcc -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/. -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/../gcc -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/../include -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/config/libbid -DENABLE_DECIMAL_BID_FORMAT -DHAVE_CC_TLS  -DUSE_TLS -o _mulvdi3.o -MT _mulvdi3.o -MD -MP -MF _mulvdi3.dep -DL_mulvdi3 -c /data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/libgcc2.c -fvisibility=hidden -DHIDE_EXPORTS
+In file included from /usr/include/stdio.h:27:0,
+                 from /data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/../gcc/tsystem.h:87,
+                 from /data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/libgcov.c:27:
+/usr/include/features.h:374:25: fatal error: sys/cdefs.h: No such file or directory
+ #  include <sys/cdefs.h>
+                         ^
+compilation terminated.
+#+END_EXAMPLE
+
+What to do, what to do....
+
+- This suggests symlinking multiarch directories to the old non-multiarch ones:
+
+http://askubuntu.com/questions/128987/ubuntu-12-breaks-gcc-4-7-build-from-source
+
+- This suggests setting various =PATH= variables as well as explicitly using the =configure --build=x86_64-linux-gnu= flag
+
+https://solarianprogrammer.com/2012/04/13/building-gcc-4-7-on-ubuntu-12-04/
+
+- There are various suggestions to add =configure --disable-multilib= but I don't find this listed in the output of =--help=.
+
+Approach:
+
+ - fork Patrick's branch
+ - split gcc build so each package goes into its own directory to allow for idempotency
+ - set the =*_PATH= variables when building GCC
+ 
+Reproduce the =cdefs.h= problem add this to gcc worch config:
+#+BEGIN_EXAMPLE
+buildenv_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
+buildenv_C_INCLUDE_PATH=/usr/include/x86_64-linux-gnu
+buildenv_CPLUS_INCLUDE_PATH=/usr/include/x86_64-linux-gnu
+#+END_EXAMPLE
+
+Restart:
+
+#+BEGIN_EXAMPLE
+  $ rm -r tmp/controls/gcc_{unpack,prepare} tmp/builds/gcc-4.8.2-/ tmp/sources/gcc-4.8.2/ 
+  $ ./waf --prefix=../install-gcc-on-ubuntu --orch-config=config/suite-compiler.cfg configure
+  $ ./waf
+#+END_EXAMPLE
+
+Noted: the GCC prerequisites are not rebuilt.  The factoring out of their =install_dirs= seems to be working.
+
+This quickly fails again with a new error:
+
+#+BEGIN_EXAMPLE
+/data0/projects/lbne-pure-cmake/lbne-build/tmp/builds/gcc-4.8.2-/./gcc/xgcc -B/data0/projects/lbne-pure-cmake/lbne-build/tmp/builds/gcc-4.8.2-/./gcc/ -B/data0/projects/lbne-pure-cmake/install-gcc-on-ubuntu/gcc/4.8.2/x86_64-unknown-linux-gnu/bin/ -B/data0/projects/lbne-pure-cmake/install-gcc-on-ubuntu/gcc/4.8.2/x86_64-unknown-linux-gnu/lib/ -isystem /data0/projects/lbne-pure-cmake/install-gcc-on-ubuntu/gcc/4.8.2/x86_64-unknown-linux-gnu/include -isystem /data0/projects/lbne-pure-cmake/install-gcc-on-ubuntu/gcc/4.8.2/x86_64-unknown-linux-gnu/sys-include    -g -O2 -fPIC -m32 -O2  -g -O2 -fPIC -DIN_GCC   -W -Wall -Wno-narrowing -Wwrite-strings -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wold-style-definition  -isystem ./include   -fPIC -mlong-double-80 -g -DIN_LIBGCC2 -fbuilding-libgcc -fno-stack-protector   -fPIC -mlong-double-80 -I. -I. -I../../.././gcc -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/. -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/../gcc -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/../include -I/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/config/libbid -DENABLE_DECIMAL_BID_FORMAT -DHAVE_CC_TLS  -DUSE_TLS -o _gcov.o -MT _gcov.o -MD -MP -MF _gcov.dep -DL_gcov -c /data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/libgcov.c
+In file included from /usr/include/features.h:398:0,
+                 from /usr/include/stdio.h:27,
+                 from /data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/../gcc/tsystem.h:87,
+                 from /data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/gcc-4.8.2/libgcc/libgcov.c:27:
+/usr/include/x86_64-linux-gnu/gnu/stubs.h:7:27: fatal error: gnu/stubs-32.h: No such file or directory
+ # include <gnu/stubs-32.h>
+#+END_EXAMPLE
+
+I've been down this road before.  I gotta search for what I did, but in the mean time, set =--build= explicitly
+
+#+BEGIN_EXAMPLE
+  $ rm -rf tmp
+  $ ./waf --prefix=../install-gcc-on-ubuntu --orch-config=config/suite-compiler.cfg configure
+  $ ./waf
+#+END_EXAMPLE
+
+On =stubs-32.h=:
+
+ - Blames missing 32bit libc dev and/or multilib.  Okay, so this is why I see the mysterious =configure --disable-multilib=.  It's an actual GCC FAQ:
+
+https://gcc.gnu.org/wiki/FAQ#gnu_stubs-32.h
+
+Okay, same error.  Now apply =--disable-multilib=
+
+#+BEGIN_EXAMPLE
+  $ rm -r tmp/controls/gcc_{unpack,prepare} tmp/builds/gcc-4.8.2-/ tmp/sources/gcc-4.8.2/
+  $ ./waf --prefix=../install-gcc-on-ubuntu --orch-config=config/suite-compiler.cfg configure
+  $ ./waf
+#+END_EXAMPLE
+
+Success!  Now commit, rebase and merge.
+
+#+BEGIN_EXAMPLE
+$ git commit            # on gcc-on-ubuntu branch
+$ git checkout master
+$ git pull              # bring my master up to date
+$ git checkout gcc-on-ubuntu
+$ git rebase master     # catch up with Patrick
+#+END_EXAMPLE
+
+Now, nuke =tmp/= and try rebuilding the whole shebang.
+
+* [2014-08-25 Mon 11:21]
+
+Rebased on Patrick's =FNALCore= changes.  First clean build forgot and ran just the =suite-compiler=, then reconfigured using =suite-larsoft=.  I get a failure to download =G4EMLOW= ("connection reset by peer") but it seems transient.  The worch retry feature saved the day.  I'm getting a load of 8, which means throttled by NCPUS at the waf level.  Maybe I should have gotten a dual-core workstation....
+
+Failure in =geant_prepare= and =boost_install= steps.
+
+** The =boost_install= failure:
+
+#+BEGIN_EXAMPLE
+gcc.compile.c++ bin.v2/libs/iostreams/build/gcc-4.8.2/release/threading-multi/bzip2.o
+libs/iostreams/src/bzip2.cpp:20:56: fatal error: bzlib.h: No such file or directory
+ #include "bzlib.h"  // Julian Seward's "bzip.h" header.
+#+END_EXAMPLE
+
+Solution
+
+#+BEGIN_EXAMPLE
+  $ sudo apt-get install libbz2-dev
+#+END_EXAMPLE
+
+** The =geant_prepare= failure:
+
+#+BEGIN_EXAMPLE
+-- Found X11: /usr/lib/x86_64-linux-gnu/libX11.so
+CMake Error at cmake/Modules/Geant4InterfaceOptions.cmake:198 (message):
+  could not find X11 Xmu library and/or headers
+#+END_EXAMPLE
+
+Solution:
+
+#+BEGIN_EXAMPLE
+  $ sudo apt-get install libx11-dev libxmu-dev
+#+END_EXAMPLE
+
+No configuration changes so just rerun =./waf= to restart.
+
+=geant_prepare= still cranky
+
+#+BEGIN_EXAMPLE
+CMake Error at /data0/projects/lbne-pure-cmake/install-gcc-on-ubuntu/cmake/2.8.11/share/cmake-2.8/Modules/FindPackageHandleStandardArgs.cmake:108 (message):
+  Could NOT find OpenGL (missing: OPENGL_gl_LIBRARY)
+#+END_EXAMPLE
+
+Solution:
+
+#+BEGIN_EXAMPLE
+  $ sudo apt-get install libgl1-mesa-dev
+#+END_EXAMPLE
+
+Success with warning:
+
+#+BEGIN_EXAMPLE
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CMAKE_F_COMPILER
+    G4_ENABLE_CXX11
+#+END_EXAMPLE
+
+Now =geant_build=:
+
+#+BEGIN_EXAMPLE
+In file included from /data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/geant4.9.6.p03/source/visualization/OpenGL/include/G4
+OpenGLViewer.hh:39:0,
+                 from /data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/geant4.9.6.p03/source/visualization/OpenGL/include/G4
+OpenGLImmediateViewer.hh:40,
+                 from /data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/geant4.9.6.p03/source/visualization/OpenGL/src/G4Open
+GLImmediateViewer.cc:37:
+/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/geant4.9.6.p03/source/visualization/OpenGL/include/G4OpenGL.hh:44:23: fatal
+ error: GL/glu.h: No such file or directory
+  #  include <GL/glu.h>
+                       ^
+compilation terminated.
+#+END_EXAMPLE
+
+Solution:
+
+#+BEGIN_EXAMPLE
+  $ sudo apt-get install libglu1-mesa-dev
+  $ ./waf
+#+END_EXAMPLE
+
+Now =root_build=:
+
+#+BEGIN_EXAMPLE
+/data0/projects/lbne-pure-cmake/install-gcc-on-ubuntu/gcc/4.8.2/bin/g++  -fPIC  -pipe -m64 -Wall -W -Woverloaded-virtual -fPIC -std=c++11 -Wno-deprecated-declarations -O2 -g -Wl,--no-undefined -shared -Wl,-soname,libFTGL.so -o ../../lib/libFTGL.so CMakeFiles/FTGL.dir/src/FTFont.cxx.o CMakeFiles/FTGL.dir/src/FTLibrary.cxx.o CMakeFiles/FTGL.dir/src/FTGLExtrdFont.cxx.o CMakeFiles/FTGL.dir/src/FTContour.cxx.o CMakeFiles/FTGL.dir/src/FTExtrdGlyph.cxx.o CMakeFiles/FTGL.dir/src/FTPixmapGlyph.cxx.o CMakeFiles/FTGL.dir/src/FTSize.cxx.o CMakeFiles/FTGL.dir/src/FTVectoriser.cxx.o CMakeFiles/FTGL.dir/src/FTGLTextureFont.cxx.o CMakeFiles/FTGL.dir/src/FTCharmap.cxx.o CMakeFiles/FTGL.dir/src/FTPoint.cxx.o CMakeFiles/FTGL.dir/src/FTGLPixmapFont.cxx.o CMakeFiles/FTGL.dir/src/FTGLOutlineFont.cxx.o CMakeFiles/FTGL.dir/src/FTBitmapGlyph.cxx.o CMakeFiles/FTGL.dir/src/FTTextureGlyph.cxx.o CMakeFiles/FTGL.dir/src/FTOutlineGlyph.cxx.o CMakeFiles/FTGL.dir/src/FTGlyphContainer.cxx.o CMakeFiles/FTGL.dir/src/FTFace.cxx.o CMakeFiles/FTGL.dir/src/FTGLPolygonFont.cxx.o CMakeFiles/FTGL.dir/src/FTPolyGlyph.cxx.o CMakeFiles/FTGL.dir/src/FTGLBitmapFont.cxx.o CMakeFiles/FTGL.dir/src/FTGlyph.cxx.o -lGL -lSM -lICE -lX11 -lXext ../../lib/libfreetype.a -lz 
+CMakeFiles/FTGL.dir/src/FTVectoriser.cxx.o: In function `FTVectoriser::MakeMesh(double)':
+/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/root/graf3d/ftgl/src/FTVectoriser.cxx:184: undefined reference to `gluNewTess'
+/data0/projects/lbne-pure-cmake/lbne-build/tmp/sources/root/graf3d/ftgl/src/FTVectoriser.cxx:186: undefined reference to `gluTessCallback'
+#+END_EXAMPLE
+
+ROOT got prepared before the last GL fix for Geant4.  Nuke and retry:
+
+#+BEGIN_EXAMPLE
+  $ rm -r tmp/controls/root_* tmp/sources/root/ tmp/builds/root-5.34.18-/
+  $ ./waf
+#+END_EXAMPLE
+
+Got up to =FNALCore_prepare=.  I note that this is the first package to be named with capital letters.  I don't see any obvious problems with that.  Anyways, at first blush it fails with:
+
+#+BEGIN_EXAMPLE
+CMake Error at /data0/projects/lbne-pure-cmake/install-gcc-on-ubuntu/cmake/2.8.11/share/cmake-2.8/Modules/FindPackageHandleStandardArgs.cmake:108 (message):
+  Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE) (Required is at least
+  version "1.8")
+#+END_EXAMPLE
+
+Solution:
+
+#+BEGIN_EXAMPLE
+  $ sudo apt-get install doxygen-latex
+  $ ./waf
+#+END_EXAMPLE
+
+Last step, fails due to missing target:
+
+#+BEGIN_EXAMPLE
+[261/261] FNALCore_install: tmp/controls/FNALCore_build -> ../install-gcc-on-ubuntu/FNALCore/1.0.0/lib64/libFNALCore.so.1.0.0 tmp/controls/FNALCore_install
+Waf: Leaving directory `/data0/projects/lbne-pure-cmake/lbne-build/tmp'
+Build failed
+-> missing file: '/data0/projects/lbne-pure-cmake/install-gcc-on-ubuntu/FNALCore/1.0.0/lib64/libFNALCore.so.1.0.0'
+#+END_EXAMPLE
+
+It shows up at:
+
+#+BEGIN_EXAMPLE
+  $ ls -l ../install-gcc-on-ubuntu/FNALCore/1.0.0/lib/x86_64-linux-gnu/
+  total 10988
+  drwxrwxr-x 3 bviren bviren     4096 Aug 26 08:42 cmake
+  lrwxrwxrwx 1 bviren bviren       20 Aug 26 08:42 libFNALCore.so -> libFNALCore.so.1.0.0
+  -rw-r--r-- 1 bviren bviren 11246613 Aug 26 08:42 libFNALCore.so.1.0.0
+#+END_EXAMPLE
+
+This is apparently something set by =cmake=.  I confirm that the from-source cmake is picked up.  Here is the offending, SL-specific line:
+
+#+BEGIN_EXAMPLE
+[package FNALCore]
+...
+install_target = lib64/libFNALCore.so.1.0.0
+#+END_EXAMPLE
+
+Worch needs to provide a variable to capture these two differences.  CMake provides:
+
+#+BEGIN_EXAMPLE
+  $ cmake --system-information|grep CMAKE_LIBRARY_ARCHITECTURE
+  CMAKE_LIBRARY_ARCHITECTURE "x86_64-linux-gnu"
+#+END_EXAMPLE
+
+But using this in the core of worch will not necessarily pick up the same CMake, or any at all, on any given system as the core does not run under an environment influenced by what is being built.  Also, this variable isn't even defined on SL6's native cmake (=version 2.6-patch 4=).
+
+Confer with Ben and Patrick and for now, punt and change the target to a non-binary file. 
+
+Solution (for now):
+
+#+BEGIN_EXAMPLE
+[package FNALCore]
+...
+install_target = include/FNALCore/cetlib/exception.h 
+#+END_EXAMPLE
+
+This needs a reconfigure
+
+#+BEGIN_EXAMPLE
+  $ ./waf --prefix=../install-gcc-on-ubuntu --orch-config=config/suite-larsoft.cfg configure
+  $ ./waf
+  [261/261] FNALCore_install: tmp/controls/FNALCore_build -> ../install-gcc-on-ubuntu/FNALCore/1.0.0/include/FNALCore/cetlib/exception.h tmp/controls/FNALCore_install
+  Waf: Leaving directory `/data0/projects/lbne-pure-cmake/lbne-build/tmp'
+  'build' finished successfully (0.893s)
+#+END_EXAMPLE
+
+"Done".
+
+Okay, this can be fixed by simply defining the value of =CMAKE_INSTALL_LIBDIR= on the =cmake= command line.
