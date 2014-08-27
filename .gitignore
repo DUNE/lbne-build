@@ -3,3 +3,4 @@ tmp
 .waf-*
 .lock-waf*
 worch
+*.pyc
