@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 toolname = 'lbne'
 myshare = 'share/worch/' + toolname
 setup(name = 'lbne-build',
-      version = '0.0',
+      version = '0.1',
       description = 'Worch/waf tools to build LBNE software.',
       author = 'Brett Viren',
       author_email = 'brett.viren@gmail.com',
