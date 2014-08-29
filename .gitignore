@@ -2,5 +2,7 @@
 tmp
 .waf-*
 .lock-waf*
-worch
 *.pyc
+build
+dist
+*.egg-info
