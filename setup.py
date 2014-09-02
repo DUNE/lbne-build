@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 toolname = 'lbne'
 myshare = 'share/worch/' + toolname
 setup(name = 'lbne-build',
-      version = '0.1',
+      version = '0.2',
       description = 'Worch/waf tools to build LBNE software.',
       author = 'Brett Viren',
       author_email = 'brett.viren@gmail.com',
@@ -13,10 +13,10 @@ setup(name = 'lbne-build',
       namespace_packages = ['worch'],
       packages = ['worch','worch.lbne','worch.lbne.tbbinst'],
       install_requires = [
-          'worch-ups >= 0.1',
+          'worch-ups >= 0.3',
       ],
       dependency_links = [
-          'https://github.com/brettviren/worch-ups/archive/0.1.tar.gz#egg=worch-ups-0.1',
+          'https://github.com/brettviren/worch-ups/archive/0.3.tar.gz#egg=worch-ups-0.3',
       ],
       data_files = [
           ('share/worch/config/lbne', glob('config/*.cfg')),
