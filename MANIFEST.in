@@ -1,0 +1,2 @@
+include config/*.cfg
+include patches/lbne/*.patch
