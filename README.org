@@ -2,22 +2,7 @@
 
 This package is used to build the software suites for LBNE.  It makes use of [[https://code.google.com/p/waf/][waf]] and [[https://github.com/brettviren/worch][worch]].
 
-*Note: this is not yet ready to use.*
-
-* Instructions
-
-In general, to install the software:
-
-#+BEGIN_EXAMPLE
-$ git clone https://github.com/LBNE/lbne-build.git
-$ cd lbne-build
-$ ./waf --version  # one time
-# ./waf --prefix=/path/to/install/area \
-        --orch-config=config/suite-<SUITE>.cfg \
-          configure build 
-#+END_EXAMPLE
-
-See the prerequisites section for your platform below.
+*Note: this is not yet ready to use.   Soon!*
 
 * Prerequisites
 
@@ -42,3 +27,51 @@ You will need at least these:
            libgl1-mesa-dev libglu1-mesa-dev \
            doxygen-latex 
 #+END_EXAMPLE
+
+
+* Instructions
+
+** Install the build environment
+
+The build environment is installed in a standard Python manner.  It is recommended to install it into a Virtual Environment:
+
+#+BEGIN_EXAMPLE
+  $ virtualenv /path/to/venv
+  $ source /path/to/venv/bin/activate
+  $ pip install git+git://github.com/LBNE/lbne-build@X.Y
+  $ waf --version
+#+END_EXAMPLE
+
+Notes:
+
+ - if your system does not have the Virtual Environment tool =virtualenv= see [[http://virtualenv.readthedocs.org/en/latest/virtualenv.html#installation][this page]].
+ - the example uses the mythological version tag =X.Y=.  Replace this with the actual version string or remove =@X.Y= to use the tip of the master branch.
+
+** Selecting the suite to build
+
+The installation is driven by a top level configuration file which will be found:
+
+#+BEGIN_EXAMPLE
+  $ ls /path/to/venv/share/worch/config/lbne/suite-*.cfg
+#+END_EXAMPLE
+
+** Configuring for building
+
+The build will need a substantial amount of disk space (10's of GB) for intermediate build products.  This is best located on fast, local disk.  After the build is complete, it can be removed or, if more than one suite is desired, reused.  A final installation location must also be determined.  This will require many GBs of space.  With the suite name determined from the above listing the build is configured with:
+
+#+BEGIN_EXAMPLE
+  $ cp /path/to/venv/share/worch/wscripts/lbne/wscript .
+  $ ./waf --prefix=/path/to/install \
+          --orch-config=lbne/suite-<SUITE>.cfg \
+            configure 
+#+END_EXAMPLE
+
+** Building the software
+
+Finally, to kick off the build one simply runs:
+
+#+BEGIN_EXAMPLE
+  $ waf
+#+END_EXAMPLE
+
+The intermediate files will be populated below the directory =./tmp/=.

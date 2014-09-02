@@ -18,6 +18,9 @@ setup(name = 'lbne-build',
       dependency_links = [
           'https://github.com/brettviren/worch-ups/archive/0.1.tar.gz#egg=worch-ups-0.1',
       ],
-      data_files = [('share/worch/config/lbne', glob('config/*.cfg')),
-                    ('share/worch/patches/lbne', glob('patches/lbne/*.patch'))],
+      data_files = [
+          ('share/worch/config/lbne', glob('config/*.cfg')),
+          ('share/worch/patches/lbne', glob('patches/lbne/*.patch')),
+          ('share/worch/wscripts/lbne', ['wscript']),
+      ],
 )
