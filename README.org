@@ -60,10 +60,11 @@ The installation is driven by a top level configuration file which will be found
 The build will need a substantial amount of disk space (10's of GB) for intermediate build products.  This is best located on fast, local disk.  After the build is complete, it can be removed or, if more than one suite is desired, reused.  A final installation location must also be determined.  This will require many GBs of space.  With the suite name determined from the above listing the build is configured with:
 
 #+BEGIN_EXAMPLE
+  $ cd /path/to/build
   $ cp /path/to/venv/share/worch/wscripts/lbne/wscript .
-  $ ./waf --prefix=/path/to/install \
-          --orch-config=lbne/suite-<SUITE>.cfg \
-            configure 
+  $ waf --prefix=/path/to/install \
+        --orch-config=lbne/suite-<SUITE>.cfg \
+          configure 
 #+END_EXAMPLE
 
 ** Building the software
@@ -75,3 +76,44 @@ Finally, to kick off the build one simply runs:
 #+END_EXAMPLE
 
 The intermediate files will be populated below the directory =./tmp/=.
+
+
+* Development
+
+To develop =lbne-build= itself you need a way to edit its files,
+install and exercise them.  
+
+Either create a new Virtual Environment (run "=deactivate=" to deactivate the current one from any activated shells) or reuse the one from above.  The initial setup goes like:
+
+#+BEGIN_EXAMPLE
+  $ virtualenv /path/to/venv
+  $ source /path/to/venv/bin/activate
+  $ mkdir -p /path/to/work
+  $ cd /path/to/work
+  $ git clone git@github.com:LBNE/lbne-build.git
+  $ python setup.py sdist
+  $ pip install dist/lbne-build-X.Y.tar.gz
+#+END_EXAMPLE
+
+Replace =X.Y= with whatever version is built. 
+
+After hacking on the =lbne-build= file reinstall everything like:
+
+#+BEGIN_EXAMPLE
+  $ pip uninstall -y lbne-build
+  $ python setup.py sdist
+  $ pip install dist/lbne-build-X.Y.tar.gz
+#+END_EXAMPLE
+
+To actually run the build one does the same as if installing an official release:
+
+#+BEGIN_EXAMPLE
+  $ cd /path/to/build
+  $ cp /path/to/venv/share/worch/wscripts/lbne/wscript .
+  $ waf --prefix=/path/to/install \
+        --orch-config=lbne/suite-<SUITE>.cfg \
+          configure 
+  $ waf
+#+END_EXAMPLE
+
+Note, this still installs Worch and other required Python packages automatically.  If you need to hack on them you can similarly "=pip uninstall=" them from the Virtual Environment, "git clone" their source, "=python setup.py sdist=" to make the =dist/*.tar.gz= file and "=pip install=" that.
