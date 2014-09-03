@@ -1,3 +1,4 @@
 include config/*.cfg
 include patches/lbne/*.patch
 include wscript
+include requirements.txt
