@@ -1,0 +1,4 @@
+ups-utils==0.1
+worch==1.2.1
+worch-ups==0.4.1
+
