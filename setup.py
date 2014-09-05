@@ -7,7 +7,7 @@ def git(cmd):
     return out.strip()
 
 def current_version():
-    branch = git("describe --contains --all HEAD")
+    branch = [x[2:] for x in git("branch").split('\n') if x.startswith('* ')][0]
     if branch.startswith("release/"):
         return open("RELEASE-VERSION").read().strip()
     return git("describe --dirty")
