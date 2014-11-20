@@ -1,0 +1,24 @@
+diff -Naur cry_v1.7/src/Makefile cry_v1.7/src/Makefile
+--- cry_v1.7/src/Makefile	2012-03-25 10:07:56.000000000 -0500
++++ cry_v1.7/src/Makefile	2012-09-24 13:39:17.137049000 -0500
+@@ -6,6 +6,7 @@
+ OBJ = $(SRC:%.cc=%.o)
+ DEP = $(SRC:%.cc=.%.d)  
+ LIB = ../lib/libCRY.a
++SOLIB = ../lib/libCRY.so
+ 
+ CPPFLAGS += -Wall
+ 
+@@ -22,9 +23,11 @@
+ 	@if (test -f $(LIB) ) then (rm $(LIB)) fi
+ 	@ar -crs $(LIB) $(OBJ)
+ 	@echo "Done making $(LIB)"
++	@$(CXX) -shared -o $(SOLIB) $(OBJ)
++	@echo "Done making $(SOLIB)"
+ 
+ clean:
+-	rm -f *.o .*.d ../lib/libCRY.a 
++	rm -f *.o .*.d ../lib/libCRY.a  ../lib/libCRY.so
+ 
+ .PHONY: depend clean
+ 
