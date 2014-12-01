@@ -5,19 +5,19 @@ Introduction
 ============
 
 LBNE must be able to install its required software from source code on
-all major collaboration platforms. Whilst binary deployment systems such as
-`cvmfs` or `rpm/deb` are useful, a simple and standard from-source build must
+all major collaboration platforms[^0]. Whilst binary deployment systems such as
+`cvmfs` or `rpm/deb` are useful, a simple, portable and automated from-source build mechanism must
 be provided in order to easily create these binary packages and to ease
-code development tasks. The single largest hindrance in
-satisfying this requirement is the design and implementation of the low-level
-CMake-based build system of the `LArSoft` and `art` packages which provide
+code development tasks. The single, largest hindrance in
+satisfying this requirement that has been encountered by LBNE is the design and implementation of the low-level
+CMake-based build system of the `LArSoft` and `art` packages.  These packages provide
 the major components for the detector simulation portion of the LBNE software
-stack.
+stack and thus this hindrance has had a large impact on the progress of LBNE.
 
 The main element of the `LArSoft/art` build system that is problematic
 is the tight entanglement it has with the high-level `UPS` end-user
-environment/package management system (`UPS`). Rather than the management
-system giving configuration to the build system, as the case in all industry
+environment/package management system (`UPS`). Rather than having a configuration system
+give configuration information to a build system, as the case in all industry
 standard systems such as `rpm`/`deb`/ports/Homebrew, the `LArSoft/art` build
 system *takes* configuration from `UPS`. This inversion of the usual
 configuration-build hierarchy makes it impossible to build/run
@@ -33,22 +33,26 @@ and the required third party software "out of the box".
 The heart of the problem, this inverted-dependency between the CMake build
 and `UPS` configuration, was pointed out to the `art` development team in
 April 2013, and in subsequent meetings both informal and official.
-No acknowledge of this as an actual problem has ever been made, nor have they
-supported LBNE in trying to address it. It should also be noted that LBNE's
-criticisms are not unique, with other potential users of `art` (including
-the CAPTAIN and SuperNEMO experiments) having rejected it due to the complexity
-of the installation proceedure despite its apparently small source footprint.
+They did not acknowledge there was an actual problem, nor have they
+supported LBNE in trying to address it. Instead, they suggested LBNE develop
+a solution and propose it and it would be considered for adoption.
+
+It should also be noted that LBNE's
+criticisms are not unique.   Other potential adopters of `art` (including
+the CAPTAIN and SuperNEMO experiments) have rejected it due to the complexity
+of the installation proceedure despite its apparently small source footprint (more on this below).
 Given this lack of support and that LBNE must continue to rely on `LArSoft`
 and `art` in the near term, LBNE has embarked on solving the problem without
 upstream Fermilab support.
 
-The strategy is in two parts: The first part is to replace the `UPS`-entangled
+The strategy of the solution is in two parts: The first part is to replace the `UPS`-entangled
 CMake files with ones written to use pure-CMake functionality and thus
 increase the portability of 'LArSoft/art'. The second part is to remove the
 configuration management logic and data that resided in the
 UPS-entanglement and move it into a higher-level layer in the form of a
 Worch configuration. This strategy has already been proven to work in an
-initial conversion of the `art` packages. The rest of this document
+initial conversion of the `art` packages and subsequent application to `LArSoft` packages.
+The rest of this document
 describes more about the current status of this effort, a plan for
 carrying forward this strategy and a rough time-line.
 
@@ -104,12 +108,13 @@ Rather, the build system should not rely on one being present and in use.
 
 The `UPS` Environment Management System
 ---------------------------------------
-Why the stack is difficult to install
 
 Though documentation exists for `UPS`, it is out of date and poorly broken
-down into sections for beginner and experienced users.
+down into sections for beginner and experienced users. 
 
-`UPS` itself is not a blocker for LBNE, rather, it is the way that a hard
+Although `UPS` is not ideal (it is noted that Fermilab's own pattern of use `UPS`
+gives evidence of this)
+the use of `UPS` itself is not a blocker for LBNE, rather, it is the way that a hard
 reliance on `UPS` has been built into the tools used to build `art`, `LArSoft`
 and their client packages.
 
@@ -179,9 +184,9 @@ sitting under a configuration/packaging system, e.g. RPM.
 Current Status
 ==============
 
-The current status of the purification of the low-level CMake build
+The current status of the "purification" of the low-level CMake build
 system is described. Here the *art* packages are `cpp0x`, `cetlib`,
-`fhicl-cpp` and `messagefacility` and `art` itself.
+`fhicl-cpp` and `messagefacility` and `art` itself and `LArSoft` refers to its current count of ten packages.
 
 -   An LBNE GitHub organization has been established[^1].
 
@@ -200,6 +205,8 @@ system is described. Here the *art* packages are `cpp0x`, `cetlib`,
     organization. It houses a Worch[^5] configuration and tools to build
     all the 3rd-party external packages, `FNALCore` and `fnal-art` from
     source.
+
+-   The patterns applied to `art` packages have been pushed up the stack through most of `LArSoft`.
 
 -   Building these packages with Worch has been tested on at least
     Ubuntu (14.04) and Scientific Linux (6.4) and in a by-hand manner on
@@ -222,7 +229,7 @@ The plan going forward is meant to satisfy these goals:
 
 The plan is in three major parts:
 
-1.  Continue to apply the CMake purification up through the LArSoft and
+1.  Continue to apply the CMake purification up through the LArSoft and the LBNE-specific
     `lbnecode` packages. In the same manner as with `fnal-art`, push
     commits to GitHub in forks which track their upstream repositories
     and in step add to `lbne-build` support to build each newly purified
@@ -230,8 +237,8 @@ The plan is in three major parts:
     in order to create UPS binary product "tarballs" from the build
     results and thus retain user-level status quo in the end.
 
-2.  Change over from GItHub based development to pushing commits to
-    upstream repositories. Do this by first purifying `lbnecode` as
+2.  Change over from GitHub-based repositories to pushing commits to
+    upstream repositories (in Fermilab Redmine/git). Do this by first purifying `lbnecode` as
     above (and in GitHub) and then porting these changes into the
     `lbnecode` Redmine git repository with all changes placed behind a
     "switch" that defaults to the UPS-entangled build. Factor
@@ -261,7 +268,9 @@ system as it brings significant complexity without commiserate benefits.
 Timeline
 ========
 
-No clue at this moment.
+T.B.D.
+
+[^0]: "LBNE Software and Computing Requirements", LBNE DocDB 8035
 
 [^1]: <https://github.com/LBNE> and links there for the individual
     `fnal-*` forks.
