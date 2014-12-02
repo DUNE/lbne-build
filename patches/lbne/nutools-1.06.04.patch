@@ -30,7 +30,7 @@ Index: SimulationBase/CMakeLists.txt
  	       ${ROOT_CORE}
  	       ${ROOT_CINT} 
  	       ${ROOT_RIO}
-@@ -34,9 +26,41 @@
+@@ -34,9 +26,43 @@
  	       ${ROOT_MATHCORE}
  	       ${ROOT_THREAD} )
  
@@ -59,7 +59,7 @@ Index: SimulationBase/CMakeLists.txt
 +     MCTruth.cxx
 +     )
 +
-+art_add_dictionary()
++art_add_dictionary( DICTIONARY_LIBRARIES art::art_Framework_Core SimulationBase ${SIMB_LIBRARIES})
 +
 +target_link_libraries(SimulationBase
 +     FNALCore::FNALCore
@@ -68,6 +68,8 @@ Index: SimulationBase/CMakeLists.txt
 +
 +install(TARGETS
 +     SimulationBase
++     SimulationBase_map
++     SimulationBase_dict
 +     EXPORT nutoolsLibraries
 +     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 +     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

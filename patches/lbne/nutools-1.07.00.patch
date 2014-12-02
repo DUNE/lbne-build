@@ -24,7 +24,7 @@ Index: SimulationBase/CMakeLists.txt
  	       ${ROOT_CORE}
  	       ${ROOT_CINT} 
  	       ${ROOT_RIO}
-@@ -27,9 +26,41 @@
+@@ -27,9 +26,43 @@
  	       ${ROOT_MATHCORE}
  	       ${ROOT_THREAD} )
  
@@ -62,6 +62,8 @@ Index: SimulationBase/CMakeLists.txt
 +
 +install(TARGETS
 +     SimulationBase
++     SimulationBase_map
++     SimulationBase_dict
 +     EXPORT nutoolsLibraries
 +     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 +     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
