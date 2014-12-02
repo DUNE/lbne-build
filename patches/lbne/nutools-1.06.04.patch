@@ -59,12 +59,12 @@ Index: SimulationBase/CMakeLists.txt
 +     MCTruth.cxx
 +     )
 +
++art_add_dictionary()
++
 +target_link_libraries(SimulationBase
-+     ${SIMB_LIBS}
 +     FNALCore::FNALCore
 +     )
 +
-+art_add_dictionary(DICTIONARY_LIBRARIES art::art_Framework_Core)
 +
 +install(TARGETS
 +     SimulationBase
@@ -175,7 +175,7 @@ Index: NuReweight/art/CMakeLists.txt
 -        	  LIBRARIES SimulationBase
 -	                    NuReweight 
 -        		    ${NURW_LIBS} )
-+add_library(NuReweightArt
++add_library(NuReweightArt SHARED
 +	${NuReweightArt_HEADERS}
 +	NuReweight.cxx
 +	)
@@ -301,7 +301,7 @@ Index: NuReweight/CMakeLists.txt
 +	ReweightLabels.h
 +	)
 +
-+add_library(NuReweight
++add_library(NuReweight SHARED
 +	${NuReweight_HEADERS}
 +	GENIEReweight.cxx
 +	)
@@ -954,7 +954,42 @@ Index: Modules/CetParseArgs.cmake
 ===================================================================
 --- Modules/CetParseArgs.cmake	(revision 0)
 +++ Modules/CetParseArgs.cmake	(revision 0)
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,70 @@
++########################################################################
++# cet_parse_args
++#
++# From PARSE_ARGUMENTS (http://www.cmake.org/Wiki/CMakeMacroParseArguments).
++########################################################################
++MACRO(cet_parse_args prefix arg_names option_names)
++  SET(DEFAULT_ARGS)
++  FOREACH(arg_name ${arg_names})    
++    SET(${prefix}_${arg_name})
++  ENDFOREACH(arg_name)
++  FOREACH(option ${option_names})
++    SET(${prefix}_${option} FALSE)
++  ENDFOREACH(option)
++
++  SET(current_arg_name DEFAULT_ARGS)
++  SET(current_arg_list)
++  FOREACH(arg ${ARGN})            
++    SET(larg_names ${arg_names})    
++    LIST(FIND larg_names "${arg}" is_arg_name)                   
++    IF (is_arg_name GREATER -1)
++      SET(${prefix}_${current_arg_name} ${current_arg_list})
++      SET(current_arg_name ${arg})
++      SET(current_arg_list)
++    ELSE (is_arg_name GREATER -1)
++      SET(loption_names ${option_names})    
++      LIST(FIND loption_names "${arg}" is_option)            
++      IF (is_option GREATER -1)
++	     SET(${prefix}_${arg} TRUE)
++      ELSE (is_option GREATER -1)
++	     SET(current_arg_list ${current_arg_list} ${arg})
++      ENDIF (is_option GREATER -1)
++    ENDIF (is_arg_name GREATER -1)
++  ENDFOREACH(arg)
++  SET(${prefix}_${current_arg_name} ${current_arg_list})
++ENDMACRO(cet_parse_args)
 +########################################################################
 +# cet_parse_args
 +#
@@ -994,7 +1029,189 @@ Index: Modules/artTools.cmake
 ===================================================================
 --- Modules/artTools.cmake	(revision 0)
 +++ Modules/artTools.cmake	(revision 0)
-@@ -0,0 +1,182 @@
+@@ -0,0 +1,364 @@
++# - Developer/User tools for building art-style products
++#-----------------------------------------------------------------------
++# Copyright 2014 Ben Morgan <Ben.Morgan@warwick.ac.uk>
++# Copyright 2014 University of Warwick
++
++# - Include zis only once
++if(__ART_TOOLS_INCLUDED)
++  return()
++endif()
++set(__ART_TOOLS_INCLUDED 1)
++
++
++# - Interfaces
++include(CMakeParseArguments)
++
++#-----------------------------------------------------------------------
++# Functions to replace "simple_plugin"
++# Follow cmake add_<target> type interface, possibly allow for SOURCES
++# and LINKS_LIBRARIES style arguments
++#
++# Art understands three main types of plugin
++# "service", "module" and "source".
++# Because the search for plugins is based on the library name being in
++# the form
++#  libAA_bb_Cc_<type>.<ext>
++# you have to know what <type> is
++# In addition, each specific type of module requires linking to certain
++# art libraries.
++
++#-----------------------------------------------------------------------
++# function art_add_service(<name> source1 source2 ... sourceN)
++#
++function(art_add_service _name)
++  if(NOT (_name MATCHES ".*_service$"))
++    message(FATAL_ERROR "art_add_service: target name must end in '_service'")
++  endif()
++
++  add_library(${_name} SHARED ${ARGN})
++  target_link_libraries(${_name}
++    ${art_IMPORT_NAMESPACE}art_Framework_Services_Registry
++    FNALCore::FNALCore
++    )
++endfunction()
++
++
++#-----------------------------------------------------------------------
++# function art_add_module(<name> source1 source2 ... sourceN)
++#
++function(art_add_module _name)
++  if(NOT (_name MATCHES ".*_module$"))
++    message(FATAL_ERROR "art_add_module: target name must end in '_module'")
++  endif()
++
++  add_library(${_name} SHARED ${ARGN})
++  target_link_libraries(${_name}
++    ${art_IMPORT_NAMESPACE}art_Framework_Core
++    ${art_IMPORT_NAMESPACE}art_Framework_Principal
++    ${art_IMPORT_NAMESPACE}art_Persistency_Common
++    ${art_IMPORT_NAMESPACE}art_Persistency_Provenance
++    ${art_IMPORT_NAMESPACE}art_Utilities
++    FNALCore::FNALCore
++    ${ROOT_Core_Library}
++    )
++endfunction()
++
++#-----------------------------------------------------------------------
++# function art_add_source(<name> source1 source2 ... sourceN)
++#
++function(art_add_source _name)
++  if(NOT (_name MATCHES ".*_source$"))
++    message(FATAL_ERROR "art_add_source: target name must end in '_source'")
++  endif()
++
++  add_library(${_name} SHARED ${ARGN})
++  target_link_libraries(${_name}
++    ${art_IMPORT_NAMESPACE}art_Framework_Core
++    ${art_IMPORT_NAMESPACE}art_Framework_Principal
++    ${art_IMPORT_NAMESPACE}art_Framework_IO_Sources
++    ${art_IMPORT_NAMESPACE}art_Persistency_Common
++    ${art_IMPORT_NAMESPACE}art_Persistency_Provenance
++    ${art_IMPORT_NAMESPACE}art_Utilities
++    FNALCore::FNALCore
++    ${ROOT_Core_Library}
++    )
++endfunction()
++
++
++#-----------------------------------------------------------------------
++# function art_get_genreflex_flags(<var>)
++#          Set value of <var> to minimal genreflex flags for generating
++#          dictionaries from Art sources
++#function(art_get_genreflex_flags __outputvar)
++#  set(${__outputvar}
++#    --deep
++#    --iocomments
++#    --fail_on_warnings
++#    --gccxmlopt=--debug
++#    --gccxmlopt=--gccxml-compiler
++#    --gccxmlopt=${CMAKE_CXX_COMPILER}
++#    -D_REENTRANT
++#    -DGNU_SOURCE
++#    -DGNU_GCC
++#    -DPROJECT_NAME="${PROJECT_NAME}"
++#    -DPROJECT_VERSION="${art_VERSION}"
++#    -D__STRICT_ANSI__
++#
++#    PARENT_SCOPE
++#    )
++#endfunction()
++
++
++#-----------------------------------------------------------------------
++# function art_add_dictionary(<name> <selection> <sources>)
++#          Build Reflex based dictionary libraries from input headers
++#          and selection file
++#          A "dictionary" is actually two shared libs <name>_dict and
++#          <name>_map
++#
++# - Inputs: Name, headers, selection file
++#function(art_add_dictionary __name __selection)
++
++  # - Selection file may be relative to current dir or absolute
++  #  if(IS_ABSOLUTE "${__selection}")
++#    set(selection_file "${__selection}")
++#  else()
++#    set(selection_file "${CMAKE_CURRENT_SOURCE_DIR}/${__selection}")
++#  endif()
++#
++#  if(NOT EXISTS "${selection_file}")
++#    message(FATAL_ERROR "art_add_dictionary: selection file '${selection_file}' does not exist")
++#  endif()
++#
++#  # - Args may also be relative or absolute
++#  foreach(_header ${ARGN})
++#    if(NOT IS_ABSOLUTE "${_header}")
++#      set(_header "${CMAKE_CURRENT_SOURCE_DIR}/${_header}")
++#    endif()
++#
++#    if(NOT EXISTS "${_header}")
++#      message(FATAL_ERROR "art_add_dictionary: input file '${_header}' does not exist")
++#    endif()
++#
++#    list(APPEND headers "${_header}")
++#  endforeach()
++#
++#  # Flags, include directories and definitions
++#  art_get_genreflex_flags(__art_genreflex_flags)
++#
++#  # Any directory scope inc dirs
++#  set(__art_genreflex_includes "-I${CMAKE_CURRENT_SOURCE_DIR}")
++#  get_directory_property(local_incdirs INCLUDE_DIRECTORIES)
++#  foreach(_incdir ${local_incdirs})
++#    list(APPEND __art_genreflex_includes "-I${_incdir}")
++#    message(STATUS "incdirs: ${_incdir}")
++#  endforeach()
++#  set(__art_genreflex_includes "-I$<JOIN:$<TARGET_PROPERTY:${__name},INCLUDE_DIRECTORIES>,\t-I>")
++#
++#  add_custom_command(
++#    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${__name}_dict.cpp
++#           ${CMAKE_CURRENT_BINARY_DIR}/${__name}_map.cpp
++#    COMMAND ${ROOT_genreflex_CMD}
++#            ${headers}
++#            -s ${selection_file}
++#            #"-I$<JOIN:$<TARGET_PROPERTY:${__name},INCLUDE_DIRECTORIES>,\t-I>"
++#            ${__art_genreflex_includes}
++#            --capabilities=${__name}_map.cpp
++#            -o ${__name}_dict.cpp
++#    IMPLICIT_DEPENDS CXX ${headers}
++#    DEPENDS ${selectionfile}
++#    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
++#
++#    )
++#
++#  # Equally, could follow Qt4 code generation style and just output
++#  # paths to output sources...
++#  add_library(${__name}_dict SHARED ${CMAKE_CURRENT_BINARY_DIR}/${__name}_dict.cpp)
++#  add_library(${__name}_map  SHARED ${CMAKE_CURRENT_BINARY_DIR}/${__name}_map.cpp)
++#endfunction()
++
++
++
++
 +# - Developer/User tools for building art-style products
 +#-----------------------------------------------------------------------
 +# Copyright 2014 Ben Morgan <Ben.Morgan@warwick.ac.uk>
@@ -1181,7 +1398,71 @@ Index: Modules/CetRootCint.cmake
 ===================================================================
 --- Modules/CetRootCint.cmake	(revision 0)
 +++ Modules/CetRootCint.cmake	(revision 0)
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,128 @@
++#
++# cet_rootcint( <output_name> [NO_INSTALL] ) 
++# runs rootcint against files in CMAKE_CURRENT_SOURCE_DIR and puts the result in CMAKE_CURRENT_BINARY_DIR
++
++macro( cet_rootcint rc_output_name )
++
++  set(cet_rootcint_usage "USAGE: cet_rootcint( <package name> [NO_INSTALL] )")
++  cet_parse_args( RC "" "NO_INSTALL" ${ARGN})
++
++  # there are no default arguments
++  if( RC_DEFAULT_ARGS )
++     message(FATAL_ERROR  "cet_rootcint: Incorrect arguments. ${ARGV} \n ${cet_rootcint_usage}")
++  endif()
++  ##message(STATUS "cet_rootcint debug: cet_rootcint called with ${rc_output_name}")
++  ##get_filename_component(pkgname ${CMAKE_CURRENT_SOURCE_DIR} NAME )
++  ##message(STATUS "cet_rootcint debug: pkgname is ${pkgname} - ${PACKAGE} - ${package}")
++  set( SRT_FLAGS -D_POSIX_SOURCE
++		 -D_SVID_SOURCE
++		 -D_BSD_SOURCE
++		 -D_POSIX_C_SOURCE=2
++		 -DDEFECT_NO_IOSTREAM_NAMESPACES
++		 -DDEFECT_NO_JZEXT
++		 -DDEFECT_NO_INTHEX
++		 -DDEFECT_NO_INTHOLLERITH
++		 -DDEFECT_NO_READONLY
++		 -DDEFECT_NO_DIRECT_FIXED
++		 -DDEFECT_NO_STRUCTURE )
++
++  # generate the list of headers to be parsed by cint
++  FILE(GLOB CINT_CXX *.cxx )
++  foreach( file ${CINT_CXX} )
++     STRING( REGEX REPLACE ".cxx" ".h" header ${file} )
++     get_filename_component( cint_file ${file} NAME_WE )
++     set( CINT_HEADER_LIST ${cint_file}.h ${CINT_HEADER_LIST} )
++     set( CINT_DEPENDS ${header} ${CINT_DEPENDS} )
++  endforeach( file )
++  ##message(STATUS "cint header list is now ${CINT_HEADER_LIST}" )
++
++  ##message(STATUS "cet_rootcint: running ${ROOTCINT} and using headers in ${ROOTSYS}/include")
++  get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
++  foreach( dir ${inc_dirs} )
++     set( CINT_INCS -I${dir} ${CINT_INCS} )
++  endforeach( dir )
++  ##message(STATUS "cet_rootcint: include_directories ${CINT_INCS}")
++
++  add_custom_command(
++     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.cc
++            ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.h
++     COMMAND ${ROOT_rootcint_CMD} -f ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.cc
++                	 -c -p ${SRT_FLAGS}
++			 -I. -I${CMAKE_SOURCE_DIR} ${CINT_INCS}
++			 -DUSE_ROOT -I${ROOTSYS}/include
++			 ${CINT_HEADER_LIST} LinkDef.h || { rm -f ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.cc\; /bin/false\; }
++     DEPENDS ${CINT_DEPENDS} LinkDef.h
++     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
++  )
++
++  # set variable for install_source
++  if( NOT RC_NO_INSTALL )
++    set(cet_generated_code ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.cc
++                	   ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.h )
++  endif( NOT RC_NO_INSTALL )
++
++endmacro( cet_rootcint )
 +#
 +# cet_rootcint( <output_name> [NO_INSTALL] ) 
 +# runs rootcint against files in CMAKE_CURRENT_SOURCE_DIR and puts the result in CMAKE_CURRENT_BINARY_DIR
@@ -1250,7 +1531,23 @@ Index: Modules/nutoolsConfig.cmake.in
 ===================================================================
 --- Modules/nutoolsConfig.cmake.in	(revision 0)
 +++ Modules/nutoolsConfig.cmake.in	(revision 0)
-@@ -0,0 +1,16 @@
+@@ -0,0 +1,32 @@
++# - nutools CMake package configuration file
++# Minimal for now
++# - API/ABI details
++set(nutools_VERSION @nutools_VERSION@)
++@PACKAGE_INIT@
++set_and_check(nutools_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
++set_and_check(nutools_BINDIR "@PACKAGE_CMAKE_INSTALL_BINDIR@")
++set_and_check(nutools_LIBDIR "@PACKAGE_CMAKE_INSTALL_LIBDIR@")
++# - Third-party details/refinds
++# - Import targets
++set(nutools_IMPORT_NAMESPACE "nutools::")
++
++include("${CMAKE_CURRENT_LIST_DIR}/nutoolsLibraries.cmake")
++
++list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_LIST_DIR}")
++
 +# - nutools CMake package configuration file
 +# Minimal for now
 +# - API/ABI details
@@ -1354,7 +1651,7 @@ Index: CMakeLists.txt
 ===================================================================
 --- CMakeLists.txt	(revision 639)
 +++ CMakeLists.txt	(working copy)
-@@ -1,150 +1,100 @@
+@@ -1,150 +1,103 @@
 -# ======================================================================
 -#  nutools main build file
 -#
@@ -1377,6 +1674,17 @@ Index: CMakeLists.txt
 +cmake_policy(SET CMP0042 NEW)
 +endif()
  
++project(nutools)
++set(nutools_VERSION 1.07.00)
+ 
+-# use cmake 2.8 or later
+-cmake_minimum_required (VERSION 2.8)
+ 
+-# cetbuildtools contains our cmake modules
+-SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
+-IF (NOT CETBUILDTOOLS_VERSION)
+-    MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
+-ENDIF()
 +include(CMakePackageConfigHelpers)
 +include(GNUInstallDirs)
 +include(CheckCXXCompilerFlag)
@@ -1385,30 +1693,14 @@ Index: CMakeLists.txt
 +set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_LIBDIR}")
 +set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_LIBDIR}")
  
--# use cmake 2.8 or later
--cmake_minimum_required (VERSION 2.8)
-+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_LIST_DIR}/Modules)
- 
--# cetbuildtools contains our cmake modules
--SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
--IF (NOT CETBUILDTOOLS_VERSION)
--    MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
--ENDIF()
-+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -g -DNDEBUG -fno-omit-frame-pointer")
- 
 -set(CMAKE_MODULE_PATH $ENV{ART_DIR}/Modules
 -		      $ENV{CETBUILDTOOLS_DIR}/Modules
 -		      ${CMAKE_MODULE_PATH})
++list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_LIST_DIR}/Modules)
  
 -include(CetCMakeEnv)
 -cet_cmake_env()
-+find_package(ROOT 5.34.20 REQUIRED)
-+find_package(FNALCore 0.1.0 REQUIRED)
-+find_package(art 1.11.3 REQUIRED)
-+include(artTools)
-+find_package(CLHEP 2.2.0.3 REQUIRED)
-+find_package(Geant4 9.6.3 REQUIRED)
-+find_package(Boost 1.55.0 REQUIRED)
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -g -DNDEBUG -fno-omit-frame-pointer")
  
 -# -D_GLIBCXX_USE_NANOSLEEP is needed to make std::this_thread::sleep_for available.
 -cet_set_compiler_flags(DIAGS CAUTIOUS WERROR 
@@ -1417,19 +1709,25 @@ Index: CMakeLists.txt
 -                       EXTRA_CXX_FLAGS -D_GLIBCXX_USE_NANOSLEEP 
 -                                       -Wno-unused-local-typedefs -Wno-variadic-macros)
 -cet_report_compiler_flags()
--
+ 
 -# these are minimum required versions, not the actual product versions
 -find_ups_product( art v1_11_00 )
 -find_ups_product( genie v2_8_0 )
 -find_ups_product( cetbuildtools v4_01_00 )
--
++find_package(ROOT 5.34.20 REQUIRED)
++find_package(FNALCore 0.1.0 REQUIRED)
++find_package(art 1.11.3 REQUIRED)
++include(artTools)
++find_package(CLHEP 2.2.0.3 REQUIRED)
++find_package(Geant4 9.6.3 REQUIRED)
++find_package(Boost 1.55.0 REQUIRED)
+ 
 -message(STATUS "ROOTSYS is ${ROOTSYS}")
 -set( ROOT_INC ${ROOTSYS}/include )
 +message(STATUS "ROOTSYS is $ENV{ROOTSYS}")
 +set( ROOT_INC $ENV{ROOTSYS}/include )
  message(STATUS "ROOT_INC is ${ROOT_INC}")
  
-+set(nutoolsVERSION 1.06.04)
 +
  ## find_library directives
  # geant4 libraries
@@ -1590,7 +1888,7 @@ Index: CMakeLists.txt
  include_directories ( /opt/X11/include )
  
  # source
-@@ -155,9 +105,4 @@
+@@ -155,9 +108,4 @@
  add_subdirectory (NuBeamWeights)
  add_subdirectory (NuReweight)
  add_subdirectory (SimulationBase)
