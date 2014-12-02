@@ -203,6 +203,58 @@ unbuildable without an entire local replication of a `UPS` stack. This is
 an inversion of the usual hierarchy used in industry standard build systems,
 e.g. a Makefile, sitting under a configuration/packaging system, e.g. RPM.
 
+New components
+==============
+
+The `worch` build automation tool
+---------------------------------
+
+The purification process leaves us with a package-level build system
+which is no longer entangled with a build configuration system, as is
+best practice.  Instead a higher level build configuration and
+automation system based on `worch`[^5] is utilized.
+
+Worch is a general purpose task automation tool with a focus on
+developing a cohesive suite-wide build system.  Unlike the UPS/CET
+build system it can be used to orchestrate the production of all of
+LBNE software instead of just being limited to *art* based packages.
+
+The Fermilab build system does not provide a concise method to define
+a release and instead spreads configuration management across many
+scripts, generated and hand written.  Worch allows for precise
+description of the build configuration information in a single text
+file or factored out, where it is convenient, into a few
+domain-specific ones.  These simple text files completely define what
+will be part of the release.  This includes which packages, their
+versions and file system layout of the results.  This configuration
+mechanism naturally lends itself to suite-wide release management
+mechanisms based simply on keeping the configuration files in their
+own code repository.
+
+Unlike the Fermilab build system, worch does not place any
+requirements on the packages it builds.  Because it does not assume
+any policy but rather allows for policy to be expressed in the
+configuration, it can produce a variety of build products from the
+same source and at the same time.  For example, it can be used to
+build UPS tarballs, Environment Modules, RPM and Debian packages or
+others.
+
+Also in contrast to the Fermilab build system which is a hodge podge
+of intermixed scripts and configuration information, worch follows a
+design that can be easily extended and in a way where extensions may
+be shared by different projects.  Worch makes better use of build
+hardware which is important for large software suites.  Besides being
+automated if allows for inter-package parallelism.  Tasks run as
+parallel as possible limited only by their inter-dependencies and the
+available hardware.
+
+Worch is a general purpose tool that will make managing the production
+of releases of complex suites of software for multiple, partly related
+experiments far easier than how things are currently done by Fermilab.
+Worch is also simple enough that even groups with relatively modest
+software stacks can benefit from the automation and configuration
+management that it provides..
+
 
 Current Status
 ==============
@@ -296,8 +348,26 @@ system as it brings significant complexity without commiserate benefits.
 Timeline
 ========
 
-Due to the decision making and buy-in process described above, a concrete
-timeline for rollout of the plan cannot be given.
+Due to the decision making and buy-in process described above, a
+concrete timeline for rollout of the plan cannot be given.  Estimates
+of effort needed for a specific, non-comprehensive set of items are
+attempted:
+
+- Complete purification of `LArSoft` (including `lbnecode`): 1 week
+  FTE
+
+- Complete worch feature to produce UPS tarballs from a built package:
+  1 week FTE
+
+- Port purification from GitHub repositories to Redmine ones
+  (lbnecode, larsoft, art): 1 week FTE
+
+Estimates are integrated coding time and do not take into account
+necessary discussions, assume that *art* and `LArSoft` developers
+agree to this approach and with not contingency to account for
+unforeseen technical problems.  Also not included is defining and
+enacting a campaign of testing and validation.
+
 
 [^0]: "LBNE Software and Computing Requirements", LBNE DocDB 8035
 
