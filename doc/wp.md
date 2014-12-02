@@ -33,8 +33,8 @@ and the required third party software "out of the box".
 The heart of the problem, this inverted-dependency between the CMake build
 and `UPS` configuration, was pointed out to the `art` development team in
 April 2013, and in subsequent meetings both informal and official.
-They have not acknowledged the technical issues discussed above, nor have they
-supported LBNE in trying to address them and the problems they lead to.
+They have not acknowledged the technical problems discussed above, nor
+have they supported LBNE in trying to address them and the issues they lead to.
 Instead, they suggested LBNE develop a solution and propose it and it would be considered for adoption.
 
 It should also be noted that LBNE's
@@ -45,9 +45,10 @@ Given this lack of support and that LBNE must continue to rely on `LArSoft`
 and `art` in the near term, LBNE has embarked on solving the problem without
 upstream Fermilab support.
 
-The strategy of the solution is in two parts: The first part is to replace the `UPS`-entangled
-CMake files with ones written to use pure-CMake functionality and thus
-increase the portability and usability of `LArSoft/art`. The second part is to remove the
+The strategy of the solution is in two parts: The first part is to
+decouple the `art/LArSoft` CMake scripts from `UPS` by rewriting these
+using pure CMake functionality, hence increasing the portability and
+usability of `LArSoft/art`. The second part is to remove the
 configuration management logic and data that resided in the
 UPS-entanglement and move it into a higher-level layer in the form of a
 Worch configuration. This strategy has already been proven to work in an
@@ -90,38 +91,56 @@ packages such as:
 These numbers are given to demonstrate that `art/LArSoft` are very simple and
 lightweight packages by modern standards. It should also be noted that
 neither `art` nor `LArSoft` have a large technical footprint. That is,
-they only use C++11/14, and thus should not be tied to specific
+they follow the C++11/14 standard, and thus should not be tied to specific
 architectures nor compilers.
 
-These features should make them easy to build and install on any system that
-provides a C++11/14 compliant compiler plus the requisite packages.
+These features should make `art/LArSoft` easy to build and install on any
+system providing a C++11/14 compliant compiler plus the requisite packages.
 LBNE's experience has been that this is not the case due to the coupling
 of the build system to the `UPS` configuration management system, yet there
 is no technical reason for this coupling to exist.
-Neither ROOT nor Geant4 require a specific configuration management
+Neither ROOT or Geant4 require a specific configuration management
 implementation to locate their required packages, making them highly portable
 and easy to install despite their significantly larger source/dependency
 footprint.
 
-This is not to say that a configuration management system shouldn't be used.
-Rather, the build system should not rely on one being present and in use.
+This is not to say that a configuration management system is not required
+to help in integrating and managing an overall software stack.
+Rather, the build systems of the packages comprising that stack should not
+depend on a configuration management system being present, nor that it has a
+specific implementation. This follows the basic software engineering
+principle of separation of concerns.
+
 
 The `UPS` Environment Management System
 ---------------------------------------
+The `UPS` system provides software as so-called "products" which are
+nothing more than bundles with binaries for each
+OS/architecture/compiler/optimization level/debug/profiling combination installed
+in different directories. A product bundle also contains table file(s)
+with metadata on the product and which other products it depends on.
+Configuration of packages for use by a user is through a series of
+environment variables, not only the UNIX `PATH` variables but also many
+undocumented per-package level variables. Though limited documentation
+exists for `UPS`, it is out of date and poorly broken down into sections
+for beginner and experienced users.
 
-Though documentation exists for `UPS`, it is out of date and poorly broken
-down into sections for beginner and experienced users.
+Although `UPS` is not ideal (it is noted that Fermilab's own pattern of use
+`UPS` gives evidence of this) its use as the configuration management system
+is in itself not a blocker for LBNE. Rather, it is the way that a hard
+reliance on `UPS` has been built into the tools used to build `art`,
+`LArSoft` and their client packages. Clients of `LArSoft/art`, not only
+LBNE, are therefore unable to even *build* these packages without a full
+`UPS` system replicated and configured locally, *even if the local system
+provides all required packages already*.
 
-Although `UPS` is not ideal (it is noted that Fermilab's own pattern of use `UPS`
-gives evidence of this)
-the use of `UPS` itself is not a blocker for LBNE, rather, it is the way that a hard
-reliance on `UPS` has been built into the tools used to build `art`, `LArSoft`
-and their client packages.
+It is noted that whilst `UPS` products are available through a `cvmfs`
+repository, the intent and purpose of `cvmfs` is as a *deployment* system,
+*not* a build system nor package manager. It is highly
+useful for distributing software efficiently to a limited set of platforms,
+but it provides no utility for building nor packaging that software easily
+and cleanly or those or any other platform (and nor should it).
 
-Note that `cvmfs` is a *deployment* system, *not* a package manager. It is
-highly useful for distributing software efficiently, but it provides no
-utility for building nor packaging that software easily and cleanly (and nor
-should it).
 
 The `cetbuildtools` CMake Add-ons
 ---------------------------------
@@ -136,7 +155,8 @@ ease of use and portability, to quote from CMake's website:
 > native makefiles and workspaces that can be used in the compiler
 > environment of your choice.
 
-To build a package, such as ROOT, using CMake and Makefiles, all one does is
+To build a package, such as ROOT, using CMake to generate Makefiles, all one
+does is
 
     $ cmake <args> /path/to/sourcedir
     $ make -j4
@@ -149,14 +169,13 @@ key reason: they require use of FNAL's `cetbuildtools` add-ons for CMake.
 As an additional build-time dependency, `cetbuildtools` breaks the build
 and use of `art/LArSoft` because of its design and implementation:
 
-- `cetbuildtools` is tightly coupled to FNAL's 'UPS' package/configuration
+- `cetbuildtools` is tightly coupled to FNAL's 'UPS' configuration
   management system for finding things like GCC, Boost etc.
 
-
-- This coupling is such that the user trying to build a package using
-  `cetbuildtools` has no way to
-  make it use system installs of the required packages (including GCC),
-  even if these meet version requirements.
+- This coupling and reliance on `UPS` is such that a user trying to build a
+  package using `cetbuildtools` has no way to
+  make it use system or any other non-`UPS` installs of the required packages,
+  even if these meet all version requirements.
 
 - `cetbuildtools` is highly specialized on using GCC as the compiler, and
   subsequently code in `art` has been found to contain GCCisms and code
@@ -164,20 +183,23 @@ and use of `art/LArSoft` because of its design and implementation:
 
 - If a package *A* uses `cetbuildtools`, then a package *B* which uses *A*
   will be required to also use `cetbuildtools` (and thus `UPS`). This makes
-  decoupling via a build-time "firewall" very difficult to implement.
+  decoupling any client of `LArSoft/art` from `UPS` and `cetbuildtools` via
+  a build-time "firewall" very difficult to implement.
 
 - Most functionality in `cetbuildtools` demonstrates a fundamental
   lack of understanding of CMake and its capabilities/limitations (including
   package finding, import/export targets, target properties and globbing).
 
-- Much of `cetbuildtools` functionality is in the form of undocumented,
-  heavyweight wrappers around simple core CMake. These also enforce
-  source and binary layout conventions on the user which are of little benefit.
+- Much of the `cetbuildtools` functionality is in the form of undocumented,
+  heavyweight wrappers around core CMake functions, making the tool *more
+  difficult* to use. These wrappers also enforce source and binary layout
+  conventions on the user which are of little benefit for either development
+  or runtime use cases.
 
 In short, `cetbuildtools` fails to implement a portable and easy to use
 build interface. The primary failure is its dependence on the `UPS`
 configuration management system, making any project using `cetbuildtools`
-unbuildable without an entire replication of a `UPS` stack. This is
+unbuildable without an entire local replication of a `UPS` stack. This is
 an inversion of the usual hierarchy used in industry standard build systems,
 e.g. a Makefile, sitting under a configuration/packaging system, e.g. RPM.
 
@@ -194,11 +216,15 @@ its current count of ten packages.
 
 -   The `art` repositories are forked into this organization in a way
     that "upstream" commits pushed to Fermilab Redmine repositories
-    continue to be tracked.
+    continue to be tracked. Git's decentralized nature also means that
+    commits on the GitHub repositories can be pulled into the Redmine
+    repositories in the future.
 
 -   A new `FNALCore` package [^2] is developed that aggregates the `art`
     packages (except the `art` package itself) as well as holds their
-    purified CMake files.
+    purified CMake files. An aggregation has been performed due to the
+    heavy interdependencies between these packages and their intent as
+    a foundation library for `art`.
 
 -   Purified CMake files are developed for `art` itself in the
     `fnal-art` repository[^3].
@@ -258,7 +284,7 @@ Interaction with other efforts
 ------------------------------
 
 Up until step three, this effort does not interfere with others. At step
-three, buy-in by LArSoft and *art* developers and the Fermilab software
+three, buy-in by `LArSoft` and `art` developers and the Fermilab software
 builders is required. However, before even making significant process on
 step one it must be determined if Fermilab will accept the changes that
 will be made in steps two and three. If not accepted, LBNE will revise
@@ -270,9 +296,11 @@ system as it brings significant complexity without commiserate benefits.
 Timeline
 ========
 
-T.B.D.
+Due to the decision making and buy-in process described above, a concrete
+timeline for rollout of the plan cannot be given.
 
 [^0]: "LBNE Software and Computing Requirements", LBNE DocDB 8035
+
 
 [^1]: <https://github.com/LBNE> and links there for the individual
     `fnal-*` forks.
