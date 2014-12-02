@@ -16,14 +16,14 @@ stack and thus this hindrance has had a large impact on the progress of LBNE.
 
 The main element of the `LArSoft/art` build system that is problematic
 is the tight entanglement it has with the high-level `UPS` end-user
-environment/package management system (`UPS`). Rather than having a configuration system
+environment/package management system. Rather than having a configuration system
 give configuration information to a build system, as the case in all industry
-standard systems such as `rpm`/`deb`/ports/Homebrew, the `LArSoft/art` build
-system *takes* configuration from `UPS`. This inversion of the usual
+standard systems such as `rpm`/`deb`/`ports`/`homebrew`, the `LArSoft/art`
+build system *takes* configuration from `UPS`. This inversion of the usual
 configuration-build hierarchy makes it impossible to build/run
 the O(2000/10) C++11 sources/applications of `LArSoft/art`
 without replicating the entire `UPS`-based software stack, down to the compiler
-level. Though possible, this replication is difficult due the installation
+level. Though possible, this replication is difficult due to the installation
 process being driven by a highly complex system of undocumented scripts, both
 generated and hand coded in various languages (shell, Perl and Python).
 It has been found that these factors essentially prevent porting `LArSoft/art`
@@ -33,9 +33,9 @@ and the required third party software "out of the box".
 The heart of the problem, this inverted-dependency between the CMake build
 and `UPS` configuration, was pointed out to the `art` development team in
 April 2013, and in subsequent meetings both informal and official.
-They did not acknowledge there was an actual problem, nor have they
-supported LBNE in trying to address it. Instead, they suggested LBNE develop
-a solution and propose it and it would be considered for adoption.
+They have not acknowledged the technical issues discussed above, nor have they
+supported LBNE in trying to address them and the problems they lead to.
+Instead, they suggested LBNE develop a solution and propose it and it would be considered for adoption.
 
 It should also be noted that LBNE's
 criticisms are not unique.   Other potential adopters of `art` (including
@@ -47,7 +47,7 @@ upstream Fermilab support.
 
 The strategy of the solution is in two parts: The first part is to replace the `UPS`-entangled
 CMake files with ones written to use pure-CMake functionality and thus
-increase the portability of 'LArSoft/art'. The second part is to remove the
+increase the portability and usability of `LArSoft/art`. The second part is to remove the
 configuration management logic and data that resided in the
 UPS-entanglement and move it into a higher-level layer in the form of a
 Worch configuration. This strategy has already been proven to work in an
@@ -87,7 +87,7 @@ packages such as:
 - ROOT O(10000) sources, >10 external/optional dependencies
 - Geant4 O(7000) sources, O(10) external/optional dependencies
 
-These numbers are given to demonstrate the `art/LArSoft` are very simple and
+These numbers are given to demonstrate that `art/LArSoft` are very simple and
 lightweight packages by modern standards. It should also be noted that
 neither `art` nor `LArSoft` have a large technical footprint. That is,
 they only use C++11/14, and thus should not be tied to specific
@@ -110,7 +110,7 @@ The `UPS` Environment Management System
 ---------------------------------------
 
 Though documentation exists for `UPS`, it is out of date and poorly broken
-down into sections for beginner and experienced users. 
+down into sections for beginner and experienced users.
 
 Although `UPS` is not ideal (it is noted that Fermilab's own pattern of use `UPS`
 gives evidence of this)
@@ -153,21 +153,22 @@ and use of `art/LArSoft` because of its design and implementation:
   management system for finding things like GCC, Boost etc.
 
 
-- This coupling is such that the user trying to build Art has no way to
+- This coupling is such that the user trying to build a package using
+  `cetbuildtools` has no way to
   make it use system installs of the required packages (including GCC),
   even if these meet version requirements.
 
-- `cetbuildtools` assumes GCC as the compiler, and subsequently Art code
-  has been found to contain GCCisms and code non-compliant with the
-  C++11/14 standard.
+- `cetbuildtools` is highly specialized on using GCC as the compiler, and
+  subsequently code in `art` has been found to contain GCCisms and code
+  non-compliant with the C++11/14 standard.
 
 - If a package *A* uses `cetbuildtools`, then a package *B* which uses *A*
   will be required to also use `cetbuildtools` (and thus `UPS`). This makes
-  decoupling via a buildtime "firewall" very difficult to implement.
+  decoupling via a build-time "firewall" very difficult to implement.
 
 - Most functionality in `cetbuildtools` demonstrates a fundamental
-  lack of understanding of CMake and its capabilities (including
-  package location, import/export targets and target properties).
+  lack of understanding of CMake and its capabilities/limitations (including
+  package finding, import/export targets, target properties and globbing).
 
 - Much of `cetbuildtools` functionality is in the form of undocumented,
   heavyweight wrappers around simple core CMake. These also enforce
@@ -177,24 +178,25 @@ In short, `cetbuildtools` fails to implement a portable and easy to use
 build interface. The primary failure is its dependence on the `UPS`
 configuration management system, making any project using `cetbuildtools`
 unbuildable without an entire replication of a `UPS` stack. This is
-an inversion of the usual hierarchy of a build system, e.g. a Makefile,
-sitting under a configuration/packaging system, e.g. RPM.
+an inversion of the usual hierarchy used in industry standard build systems,
+e.g. a Makefile, sitting under a configuration/packaging system, e.g. RPM.
 
 
 Current Status
 ==============
 
 The current status of the "purification" of the low-level CMake build
-system is described. Here the *art* packages are `cpp0x`, `cetlib`,
-`fhicl-cpp` and `messagefacility` and `art` itself and `LArSoft` refers to its current count of ten packages.
+system is described. Here the `art` packages are `cpp0x`, `cetlib`,
+`fhicl-cpp` and `messagefacility` and `art` itself, and `LArSoft` refers to
+its current count of ten packages.
 
 -   An LBNE GitHub organization has been established[^1].
 
--   The *art* repositories are forked into this organization in a way
+-   The `art` repositories are forked into this organization in a way
     that "upstream" commits pushed to Fermilab Redmine repositories
     continue to be tracked.
 
--   A new `FNALCore` package [^2] is developed that aggregates the *art*
+-   A new `FNALCore` package [^2] is developed that aggregates the `art`
     packages (except the `art` package itself) as well as holds their
     purified CMake files.
 
