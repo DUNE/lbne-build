@@ -529,17 +529,16 @@ index db65331..606bec9 100644
 +
 diff --git a/artdaq-coreConfig.cmake.in b/artdaq-coreConfig.cmake.in
 new file mode 100644
-index 0000000..87aea1a
+index 0000000..6435ba1
 --- /dev/null
 +++ b/artdaq-coreConfig.cmake.in
-@@ -0,0 +1,16 @@
+@@ -0,0 +1,15 @@
 +# - artdaq-core CMake package configuration file
 +# Minimal for now
 +# - API/ABI details
 +set(artdaq-core_VERSION @artdaq-core_VERSION@)
 +@PACKAGE_INIT@
 +set_and_check(artdaq-core_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
-+set_and_check(artdaq-core_BINDIR "@PACKAGE_CMAKE_INSTALL_BINDIR@")
 +set_and_check(artdaq-core_LIBDIR "@PACKAGE_CMAKE_INSTALL_LIBDIR@")
 +# - Third-party details/refinds
 +# - Import targets
