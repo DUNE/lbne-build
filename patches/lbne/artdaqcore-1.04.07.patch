@@ -1,0 +1,550 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 41ef18c..57dd8c8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -14,60 +14,117 @@
+ # ======================================================================
+ 
+ # use cmake 2.8 or later
+-cmake_minimum_required (VERSION 2.8)
++cmake_minimum_required (VERSION 2.8.12)
+ 
+ project(artdaq-core)
+-# cetbuildtools contains our cmake modules
+-SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
+-IF (NOT CETBUILDTOOLS_VERSION)
+-    MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
+-ENDIF()
+-
+-set(CMAKE_MODULE_PATH
+-  $ENV{ART_DIR}/Modules
+-	$ENV{CETBUILDTOOLS_DIR}/Modules
+-	${CMAKE_MODULE_PATH})
+-
+-include(CetCMakeEnv)
+-cet_cmake_env()
+-
+-cet_set_compiler_flags(DIAGS VIGILANT
+-  WERROR
+-  NO_UNDEFINED
+-  EXTRA_FLAGS -pedantic
+-)
+-
+-cet_report_compiler_flags()
+-
+-# these are minimum required versions, not the actual product versions
+-find_ups_product( art v1_08_10 )
+-find_ups_product( cetbuildtools v4_01_02 )
+-
+-# Needed if using old art with new cetbuildtools / CMake.
+-check_ups_version(art "$ENV{ART_VERSION}" v1_11_00 PRODUCT_OLDER_VAR have_old_art)
+-if (have_old_art)
+-  cmake_policy(SET CMP0046 OLD)
+-endif()
+-
+-# Debug streamer.
+-string(TOUPPER ${CMAKE_BUILD_TYPE} BTYPE_UC)
+-if(BTYPE_UC STREQUAL DEBUG)
+-  add_definitions(-DDEBUGME)
+-endif()
+-
+-# macros for art_dictionary and simple_plugin
+-include(ArtDictionary)
+-include(ArtMake)
+-include(BuildPlugins)
+-
+-# testing
+-add_subdirectory(test)
++set(artdaq-core_VERSION 1.04.07)
++include(CMakePackageConfigHelpers)
++include(GNUInstallDirs)
++include(CheckCXXCompilerFlag)
++set(BASE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/BuildProducts")
++set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_BINDIR}")
++set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_LIBDIR}")
++set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_LIBDIR}")
++
++list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_LIST_DIR})
++
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -g -DNDEBUG -fno-omit-frame-pointer")
++
++
++find_package(FNALCore 0.1.0 REQUIRED)
++find_package(art 1.11.3 REQUIRED)
++include(artTools)
++find_package(Boost 1.55.0 REQUIRED)
++find_package(CLHEP 2.2.0.3 REQUIRED)
++find_package(ROOT 5.34.20 REQUIRED)
++set(ROOTCINT ${ROOT_rootcint_CMD})
++
++
++include_directories ( ${CMAKE_SOURCE_DIR} )
++include_directories(${FNALCore_INCLUDE_DIRS})
++include_directories(${art_INCLUDE_DIRS})
++include_directories(${Boost_INCLUDE_DIRS})
++
++# # cetbuildtools contains our cmake modules
++# SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
++# IF (NOT CETBUILDTOOLS_VERSION)
++#     MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
++# ENDIF()
++# 
++# set(CMAKE_MODULE_PATH
++#   $ENV{ART_DIR}/Modules
++# 	$ENV{CETBUILDTOOLS_DIR}/Modules
++# 	${CMAKE_MODULE_PATH})
++# 
++# include(CetCMakeEnv)
++# cet_cmake_env()
++# 
++# cet_set_compiler_flags(DIAGS VIGILANT
++#   WERROR
++#   NO_UNDEFINED
++#   EXTRA_FLAGS -pedantic
++# )
++# 
++# cet_report_compiler_flags()
++# 
++# # these are minimum required versions, not the actual product versions
++# find_ups_product( art v1_08_10 )
++# find_ups_product( cetbuildtools v4_01_02 )
++# 
++# # Needed if using old art with new cetbuildtools / CMake.
++# check_ups_version(art "$ENV{ART_VERSION}" v1_11_00 PRODUCT_OLDER_VAR have_old_art)
++# if (have_old_art)
++#   cmake_policy(SET CMP0046 OLD)
++# endif()
++# 
++# # Debug streamer.
++# string(TOUPPER ${CMAKE_BUILD_TYPE} BTYPE_UC)
++# if(BTYPE_UC STREQUAL DEBUG)
++#   add_definitions(-DDEBUGME)
++# endif()
++# 
++# # macros for art_dictionary and simple_plugin
++# include(ArtDictionary)
++# include(ArtMake)
++# include(BuildPlugins)
++# 
++# # testing
++# add_subdirectory(test)
+ 
+ # source
+ add_subdirectory(artdaq-core)
+ 
+-# ups - table and config files
+-add_subdirectory(ups)
++# # ups - table and config files
++# add_subdirectory(ups)
++# 
++# # packaging utility
++# include(UseCPack)
++
++configure_package_config_file(
++  artdaq-coreConfig.cmake.in
++  ${CMAKE_CURRENT_BINARY_DIR}/artdaq-coreConfig.cmake
++  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/artdaq-core-${artdaq-core_VERSION}
++    PATH_VARS
++    CMAKE_INSTALL_INCLUDEDIR
++    CMAKE_INSTALL_LIBDIR
++  )
++
++write_basic_package_version_file(
++  ${CMAKE_CURRENT_BINARY_DIR}/artdaq-coreConfigVersion.cmake
++  VERSION ${artdaq-core_VERSION}
++  COMPATIBILITY AnyNewerVersion
++  )
++
++install(FILES
++  ${CMAKE_CURRENT_BINARY_DIR}/artdaq-coreConfig.cmake
++  ${CMAKE_CURRENT_BINARY_DIR}/artdaq-coreConfigVersion.cmake
++  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/artdaq-core-${artdaq-core_VERSION}
++  COMPONENT Development
++  )
++
++install(EXPORT artdaq-coreLibraries
++  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/artdaq-core-${artdaq-core_VERSION}
++  NAMESPACE artdaq-core::
++  COMPONENT Development
++  )
+ 
+-# packaging utility
+-include(UseCPack)
+diff --git a/artdaq-core/ArtModules/CMakeLists.txt b/artdaq-core/ArtModules/CMakeLists.txt
+index 66202c0..f951c3c 100644
+--- a/artdaq-core/ArtModules/CMakeLists.txt
++++ b/artdaq-core/ArtModules/CMakeLists.txt
+@@ -1,16 +1,35 @@
++# 
++# simple_plugin(ArtdaqCoreBuildInfo "module"
++#   artdaq-core_BuildInfo
++#   ${MF_MESSAGELOGGER}
++#   ${FHICLCPP}
++#   ${CETLIB}
++# )
++# 
++# simple_plugin(PrintBuildInfo "module"
++#   ${MF_MESSAGELOGGER}
++#   ${FHICLCPP}
++#   ${CETLIB}
++# )
++# 
++# install_headers()
++# install_source()
+ 
+-simple_plugin(ArtdaqCoreBuildInfo "module"
+-  artdaq-core_BuildInfo
+-  ${MF_MESSAGELOGGER}
+-  ${FHICLCPP}
+-  ${CETLIB}
+-)
++art_add_module( artdaq-core_ArtModules_ArtdaqCoreBuildInfo_module ArtdaqCoreBuildInfo_module.cc )
++
++art_add_module( artdaq-core_ArtModules_PrintBuildInfo_module PrintBuildInfo_module.cc )
++
++install(TARGETS
++     artdaq-core_ArtModules_ArtdaqCoreBuildInfo_module
++     artdaq-core_ArtModules_PrintBuildInfo_module
++     EXPORT artdaq-coreLibraries
++     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     COMPONENT Runtime 
++     )
++
++install(FILES BuildInfo_module.hh DESTINATION
++     ${CMAKE_INSTALL_INCLUDEDIR}/artdaq-core/ArtModules COMPONENT Development)
+ 
+-simple_plugin(PrintBuildInfo "module"
+-  ${MF_MESSAGELOGGER}
+-  ${FHICLCPP}
+-  ${CETLIB}
+-)
+ 
+-install_headers()
+-install_source()
+diff --git a/artdaq-core/BuildInfo/CMakeLists.txt b/artdaq-core/BuildInfo/CMakeLists.txt
+index 9d88a20..7fd0d97 100644
+--- a/artdaq-core/BuildInfo/CMakeLists.txt
++++ b/artdaq-core/BuildInfo/CMakeLists.txt
+@@ -9,10 +9,28 @@ string( STRIP ${rawUTCDate} utcDateTime )
+ configure_file ( ${CMAKE_CURRENT_SOURCE_DIR}/GetPackageBuildInfo.cc.in
+   ${CMAKE_CURRENT_BINARY_DIR}/GetPackageBuildInfo.cc @ONLY )
+ 
+-art_make_library( LIBRARY_NAME artdaq-core_BuildInfo
+-		  SOURCE
+-		  ${CMAKE_CURRENT_BINARY_DIR}/GetPackageBuildInfo.cc
+-                 )
++# art_make_library( LIBRARY_NAME artdaq-core_BuildInfo
++# 		  SOURCE
++# 		  ${CMAKE_CURRENT_BINARY_DIR}/GetPackageBuildInfo.cc
++#                  )
++# 
++# install_headers()
++# install_source()
++
++add_library(artdaq-core_BuildInfo SHARED
++     ${CMAKE_CURRENT_BINARY_DIR}/GetPackageBuildInfo.cc
++     )
++
++install(TARGETS
++     artdaq-core_BuildInfo
++     EXPORT artdaq-coreLibraries
++     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     COMPONENT Runtime 
++     )
++
++install(FILES GetPackageBuildInfo.hh DESTINATION
++     ${CMAKE_INSTALL_INCLUDEDIR}/artdaq-core/BuildInfo COMPONENT Development)
++
+ 
+-install_headers()
+-install_source()
+diff --git a/artdaq-core/Core/CMakeLists.txt b/artdaq-core/Core/CMakeLists.txt
+index 8cfe175..5f842da 100644
+--- a/artdaq-core/Core/CMakeLists.txt
++++ b/artdaq-core/Core/CMakeLists.txt
+@@ -6,14 +6,51 @@
+ 
+ # ----------------------------------------------------------------------
+ # Build this project's library:
++# 
++# art_make(
++#   LIB_LIBRARIES
++#   artdaq-core_Data
++#   ${FHICLCPP}
++#   ${Boost_THREAD_LIBRARY}
++#   ${Boost_SYSTEM_LIBRARY} 
++#   )
++# 
++# install_headers()
++# install_source()
+ 
+-art_make(
+-  LIB_LIBRARIES
+-  artdaq-core_Data
+-  ${FHICLCPP}
+-  ${Boost_THREAD_LIBRARY}
+-  ${Boost_SYSTEM_LIBRARY} 
+-  )
++set(Core_HEADERS
++     ConcurrentQueue.hh
++     GlobalQueue.hh
++     MonitoredQuantity.hh
++     SimpleQueueReader.hh
++     StatisticsCollection.hh
++     )
++
++set(Core_SOURCES
++     GlobalQueue.cc
++     MonitoredQuantity.cc
++     SimpleQueueReader.cc
++     StatisticsCollection.cc
++     )
++
++add_library(artdaq-core_Core SHARED
++     ${Core_HEADERS}
++     ${Core_SOURCES}
++     )
++
++target_link_libraries(artdaq-core_Core
++     FNALCore::FNALCore
++     )
++
++install(TARGETS
++     artdaq-core_Core
++     EXPORT artdaq-coreLibraries
++     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     COMPONENT Runtime 
++     )
++
++install(FILES ${Core_HEADERS} DESTINATION
++     ${CMAKE_INSTALL_INCLUDEDIR}/artdaq-core/Core COMPONENT Development)
+ 
+-install_headers()
+-install_source()
+diff --git a/artdaq-core/Data/CMakeLists.txt b/artdaq-core/Data/CMakeLists.txt
+index 582d562..3e83e1e 100644
+--- a/artdaq-core/Data/CMakeLists.txt
++++ b/artdaq-core/Data/CMakeLists.txt
+@@ -1,9 +1,60 @@
+-art_make(
+-  LIB_LIBRARIES
+-  ${ART_PERSISTENCY_COMMON}
+-  ${ART_UTILITIES}
+-  ${CETLIB}
+-  )
+-
+-install_headers(SUBDIRS detail)
+-install_source(SUBDIRS detail)
++# art_make(
++#   LIB_LIBRARIES
++#   ${ART_PERSISTENCY_COMMON}
++#   ${ART_UTILITIES}
++#   ${CETLIB}
++#   )
++# 
++# install_headers(SUBDIRS detail)
++# install_source(SUBDIRS detail)
++
++set( Data_HEADERS
++     Fragment.hh
++     Fragments.hh
++     PackageBuildInfo.hh
++     QuickVec.hh
++     RawEvent.hh
++     dictionarycontrol.hh
++     )
++
++set( Data_detail_HEADERS
++     detail/RawFragmentHeader.hh
++     )
++
++set( Data_SOURCES
++     Fragment.cc
++     RawEvent.cc
++     )
++
++add_library(artdaq-core_Data SHARED
++     ${Data_HEADERS}
++     ${Data_detail_HEADERS}
++     ${Data_SOURCES}
++     )
++
++target_link_libraries( artdaq-core_Data 
++     FNALCore::FNALCore
++     art::art_Persistency_Provenance
++     art::art_Utilities
++     )
++
++art_add_dictionary()
++
++install(TARGETS
++     artdaq-core_Data
++     artdaq-core_Data_map
++     artdaq-core_Data_dict
++     EXPORT artdaq-coreLibraries
++     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     COMPONENT Runtime 
++     )
++
++install(FILES ${Data_HEADERS} DESTINATION
++     ${CMAKE_INSTALL_INCLUDEDIR}/artdaq-core/Data COMPONENT Development)
++
++install(FILES ${Data_detail_HEADERS} DESTINATION
++     ${CMAKE_INSTALL_INCLUDEDIR}/artdaq-core/Data/detail COMPONENT Development)
++
++
+diff --git a/artdaq-core/Generators/CMakeLists.txt b/artdaq-core/Generators/CMakeLists.txt
+index f156f1f..c2e3b7d 100644
+--- a/artdaq-core/Generators/CMakeLists.txt
++++ b/artdaq-core/Generators/CMakeLists.txt
+@@ -1,13 +1,49 @@
+-art_make(
+-  LIB_LIBRARIES
+-  artdaq-core_Data
+-  ${ART_PERSISTENCY_COMMON}
+-  ${ART_UTILITIES}
+-  ${FHICLCPP}
+-  ${CETLIB}
+-  ${MF_MESSAGELOGGER}
+-  ${MF_UTILITIES}
+-  )
+-
+-install_headers()
+-install_source()
++# art_make(
++#   LIB_LIBRARIES
++#   artdaq-core_Data
++#   ${ART_PERSISTENCY_COMMON}
++#   ${ART_UTILITIES}
++#   ${FHICLCPP}
++#   ${CETLIB}
++#   ${MF_MESSAGELOGGER}
++#   ${MF_UTILITIES}
++#   )
++# 
++# install_headers()
++# install_source()
++
++set(Generators_HEADERS
++     FragmentGenerator.hh
++     GeneratorMacros.hh
++     makeFragmentGenerator.hh
++     )
++
++set(Generators_SOURCES
++     makeFragmentGenerator.cc
++     )
++
++add_library(artdaq-core_Generators SHARED
++     ${Generators_HEADERS}
++     ${Generators_SOURCES}
++     )
++
++target_link_libraries(artdaq-core_Generators
++     artdaq-core_Data
++     FNALCore::FNALCore
++     art::art_Persistency_Provenance
++     art::art_Utilities
++     )
++
++install(TARGETS
++     artdaq-core_Generators
++     EXPORT artdaq-coreLibraries
++     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     COMPONENT Runtime 
++     )
++
++install(FILES ${Generators_HEADERS} DESTINATION
++     ${CMAKE_INSTALL_INCLUDEDIR}/artdaq-core/Generators COMPONENT Development)
++
++
+diff --git a/artdaq-core/Utilities/CMakeLists.txt b/artdaq-core/Utilities/CMakeLists.txt
+index db65331..606bec9 100644
+--- a/artdaq-core/Utilities/CMakeLists.txt
++++ b/artdaq-core/Utilities/CMakeLists.txt
+@@ -1,9 +1,45 @@
+-art_make(
+-  LIB_LIBRARIES
+-  ${FHICLCPP}
+-  ${CETLIB}
+-  ${Boost_DATE_TIME_LIBRARY}
+-)
+-
+-install_headers()
+-install_source()
++# art_make(
++#   LIB_LIBRARIES
++#   ${FHICLCPP}
++#   ${CETLIB}
++#   ${Boost_DATE_TIME_LIBRARY}
++# )
++# 
++# install_headers()
++# install_source()
++
++set( Utilities_HEADERS
++     SimpleLookupPolicy.h
++     TimeUtils.h
++     )
++
++set( Utilities_SOURCES
++     SimpleLookupPolicy.cc
++     TimeUtils.cc
++     )
++
++add_library(artdaq-core_Utilities SHARED
++     ${Utilities_HEADERS}
++     ${Utilities_SOURCES}
++     )
++
++target_link_libraries(artdaq-core_Utilities
++     FNALCore::FNALCore
++     art::art_Persistency_Provenance
++     art::art_Utilities
++     )
++
++install(TARGETS
++     artdaq-core_Utilities
++     EXPORT artdaq-coreLibraries
++     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     COMPONENT Runtime 
++     )
++
++install(FILES ${Utilities_HEADERS} DESTINATION
++     ${CMAKE_INSTALL_INCLUDEDIR}/artdaq-core/Utilities COMPONENT Development)
++
++
++
+diff --git a/artdaq-coreConfig.cmake.in b/artdaq-coreConfig.cmake.in
+new file mode 100644
+index 0000000..6435ba1
+--- /dev/null
++++ b/artdaq-coreConfig.cmake.in
+@@ -0,0 +1,15 @@
++# - artdaq-core CMake package configuration file
++# Minimal for now
++# - API/ABI details
++set(artdaq-core_VERSION @artdaq-core_VERSION@)
++@PACKAGE_INIT@
++set_and_check(artdaq-core_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
++set_and_check(artdaq-core_LIBDIR "@PACKAGE_CMAKE_INSTALL_LIBDIR@")
++# - Third-party details/refinds
++# - Import targets
++set(artdaq-core_IMPORT_NAMESPACE "artdaq-core::")
++
++include("${CMAKE_CURRENT_LIST_DIR}/artdaq-coreLibraries.cmake")
++
++list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_LIST_DIR}")
++
