@@ -25,7 +25,7 @@ You will need at least these:
     $ sudo apt-get install \
            libbz2-dev libx11-dev  libxmu-dev \
            libgl1-mesa-dev libglu1-mesa-dev \
-           doxygen-latex libtool libbz2-dev libreadline-dev automake
+           doxygen-latex libtool libbz2-dev libreadline-dev automake libncurses5-dev
 #+END_EXAMPLE
 
 ** Fedora Core 20
