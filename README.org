@@ -99,6 +99,7 @@ Either create a new Virtual Environment (run "=deactivate=" to deactivate the cu
   $ mkdir -p /path/to/work
   $ cd /path/to/work
   $ git clone git@github.com:LBNE/lbne-build.git
+  $ cd lbne-build
   $ python setup.py sdist
   $ pip install dist/lbne-build-X.Y.tar.gz
 #+END_EXAMPLE
@@ -108,9 +109,11 @@ Replace =X.Y= with whatever version is built.
 After hacking on the =lbne-build= file reinstall everything like:
 
 #+BEGIN_EXAMPLE
+  $ cd lbne-build
   $ pip uninstall -y lbne-build
   $ python setup.py sdist
   $ pip install dist/lbne-build-X.Y.tar.gz
+  $ cd -
 #+END_EXAMPLE
 
 To actually run the build one does the same as if installing an official release:
