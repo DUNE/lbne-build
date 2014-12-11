@@ -1,0 +1,459 @@
+\documentclass[usletter]{article}
+
+\pdfoutput=1            % must be in first 5 lines so arXiv finds it
+
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{xspace}
+\usepackage{authblk}
+\usepackage[pdftex,bookmarks]{hyperref}
+\hypersetup{
+    colorlinks=false,
+    linktoc=section,
+    linkcolor=black,
+    citecolor=blue,
+    urlcolor=blue,
+    filecolor=black,
+    pdfpagemode=UseOutlines,
+}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\waf}{\code{waf}\xspace}
+\newcommand{\worch}{\textit{Worch}\xspace}
+\newcommand{\ups}{\code{UPS}\xspace}
+\newcommand{\cetbuildtools}{\code{cetbuildtools}\xspace}
+\newcommand{\art}{art\xspace}
+\newcommand{\larsoft}{LArSoft\xspace}
+\newcommand{\lbnecode}{\code{lbnecode}\xspace}
+
+\begin{document}
+
+\title{LBNE Plan for Software Installation of\\
+  LArSoft-based code}
+\author{Ben Morgan, Maxim Potekhin, Liz Sexton-Kennedy, Brett Viren}
+\date{\today}
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+LBNE must be able to install its required software from source code on
+all major collaboration platforms\cite{docdb8035}.  Whilst binary
+deployment systems such as \code{cvmfs} or those used by RPM or Debian
+based distributions, are useful, a simple, portable and automated
+from-source build mechanism must be provided in order to easily create
+these binary packages and to ease code development tasks. The single,
+largest hindrance in satisfying this requirement that has been
+encountered by LBNE is the design and implementation of the low-level
+CMake-based build system currently in use by the \larsoft and \art
+packages.  These packages provide the major components for the
+detector simulation portion of the LBNE software stack and thus this
+hindrance has had a large impact on the progress of LBNE.
+
+The main element of the \larsoft/\art build system that is problematic
+is the tight entanglement it has with the high-level \ups end-user
+environment/package management system. Rather than having a configuration system
+give configuration information to a build system, as the case in all industry
+standard systems such as \code{rpm}/\code{deb}/\code{ports}/\code{homebrew}, the \larsoft/\art
+build system \textit{takes} configuration from \ups. This inversion of the usual
+configuration-build hierarchy makes it impossible to build/run
+the O(2000/10) C++11 sources/applications of \larsoft/\art
+without replicating the entire \ups-based software stack, down to the compiler
+level. Though possible, this replication is difficult due to the installation
+process being driven by a highly complex system of undocumented scripts, both
+generated and hand coded in various languages (shell, Perl and Python).
+It has been found that these factors essentially prevent porting \larsoft/\art
+to different systems, even those that provide compatible C++11/14 compilers
+and the required third party software ``out of the box".
+
+The heart of the problem, this inverted-dependency between the CMake build
+and \ups configuration, was pointed out to the \art development team in
+April 2013, and in subsequent meetings both informal and official. The \art team disagrees that this is a problem.
+So we were left with a technical impasse, and we agreed to disagree on this point and all 
+that follows from it.  However a plan was put forward in which LBNE would develop an alternative solution that did not suffer from this 
+problem, propose it, and then the \art team would consider it for adoption.
+
+It should also be noted that LBNE's criticisms are not unique.   Other potential adopters of \art (including
+the CAPTAIN and SuperNEMO experiments) have rejected it due to the complexity
+of the installation procedure despite its apparently small source footprint (more on this below).
+
+The strategy of the solution is in two parts: The first part is to
+decouple the \art/\larsoft CMake scripts from \ups by rewriting these
+using pure CMake functionality, hence increasing the portability and
+usability of \larsoft/\art. The second part is to remove the
+configuration management logic and data that resided in the
+\ups-entanglement and move it into a higher-level layer in the form of a
+\worch configuration. This strategy has already been proven to work in an
+initial conversion of the \art packages and subsequent application to \larsoft packages.
+The rest of this document describes more about the current status of this effort, a plan for
+carrying forward this strategy and a rough time-line.
+
+\section{The FNAL \art/\larsoft Software Stack}
+\subsection{Source and Dependency Footprints of \art/\larsoft}
+
+Both packages contain small amounts of C++11/14 source code (including all unit testing code):
+\begin{itemize}
+
+	\item FNAL foundation libraries contain in total O(200/200) C++ header/source files
+	\item \art contains O(400/400) C++ header/source files
+	\item \larsoft packages contain in total O(500/600) C++ header/source files
+
+\end{itemize}
+
+
+These in turn use the following standard and widely available third party packages:
+\begin{itemize}
+
+	\item Boost
+	\item SQLite3
+	\item ROOT
+	\item CLHEP
+	\item TBB
+
+\end{itemize}
+and only in LArSoft:
+
+\begin{itemize}
+
+	\item Geant4
+	\item GENIE
+
+\end{itemize}
+
+These source/dependency footprints should be contrasted with core HEP
+packages such as:
+
+\begin{itemize}
+
+	\item ROOT O(10000) sources, $>$ 10 external/optional dependencies
+	\item Geant4 O(7000) sources, O(10) external/optional dependencies
+
+\end{itemize}
+
+These numbers are given to demonstrate that \art/\larsoft are very simple and
+lightweight packages by modern standards. It should also be noted that
+neither \art nor \larsoft have a large technical footprint. That is,
+they follow the C++11/14 standard, and thus should not be tied to specific
+architectures nor compilers.
+These features should make \art/\larsoft easy to build and install on any
+system providing a C++11/14 compliant compiler plus the requisite packages.
+LBNE's experience has been that this is not the case due to the coupling
+of the build system to the \ups configuration management system, yet there
+is no technical reason for this coupling to exist.
+Neither ROOT or Geant4 require a specific configuration management
+implementation to locate their required packages, making them highly portable
+and easy to install despite their significantly larger source/dependency
+footprint.
+
+This is not to say that a configuration management system is not required
+to help in integrating and managing an overall software stack.
+Rather, the build systems of the packages comprising that stack should not
+depend on a configuration management system being present, nor that it has a
+specific implementation. This follows the basic software engineering
+principle of separation of concerns.
+
+\subsection{The \ups Environment Management System}
+
+The \ups system provides software as ``products" which are
+ collections of files with binaries for each
+OS/architecture/compiler/optimization level/debug/profiling combination installed
+in different directories. A product also contains table file(s)
+with metadata on the product and which other products it depends on.
+Configuration of packages for use by a user is through a series of
+environment variables, not only the UNIX \code{PATH} variables but also many
+undocumented per-package level variables. Though limited documentation
+exists for \ups, it is out of date and poorly broken down into sections
+for beginner and experienced users.
+
+Although \ups is not ideal (it is noted that Fermilab's own patterns of use
+of \ups gives evidence of this) its use as the configuration management system
+is in itself not a blocker for LBNE. Rather, it is the way that a hard
+reliance on \ups has been built into the tools used to build \art,
+\larsoft and their client packages. Clients of \larsoft/\art, not only
+LBNE, are therefore unable to even \textbf{build} these packages without a full
+\ups system replicated and configured locally, \textbf{even if the local system
+provides all required packages already}.
+
+It is noted that whilst \ups products are available through a \code{cvmfs}
+repository, the intent and purpose of \code{cvmfs} is as a \textbf{deployment} system,
+\textbf{not} a build system nor package manager. It is highly
+useful for distributing software efficiently to a limited set of platforms,
+but it provides no utility for building nor packaging that software easily
+and cleanly or those or any other platform (and nor should it).
+
+\subsection{The \cetbuildtools CMake Add-ons}
+
+\larsoft/\art use the CMake build tool to configure, build and install
+their runtime/development products. Many large software projects such as
+ROOT, Geant4, LLVM and KDE (among others) have adopted CMake due to its
+ease of use and portability, to quote from CMake's website:
+
+\begin{quote}
+\textit{CMake is a family of tools designed to build, test and package software.
+ CMake is used to control the software compilation process using simple
+ platform and compiler independent configuration files. CMake generates
+ native makefiles and workspaces that can be used in the compiler
+ environment of your choice.}
+\end{quote}
+
+To build a package, such as ROOT, using CMake to generate \texttt{Makefile}s, all one
+does is
+\begin{verbatim}
+    $ cmake <args> /path/to/sourcedir
+    $ make -j4
+    $ make install
+ \end{verbatim}
+
+Custom options and configuration information, e.g. paths to needed packages,
+can be passed through the command line arguments \verb|<args>|. The \art/\larsoft
+packages should be similarly easy to build/install, but they are not for one
+key reason: they require use of FNAL's \cetbuildtools add-ons for CMake.
+As an additional build-time dependency, \cetbuildtools breaks the build
+and use of \art/\larsoft because of its design and implementation:
+\begin{itemize}
+
+	\item \cetbuildtools is tightly coupled to FNAL's \ups configuration
+  management system for finding things like GCC, Boost etc.
+  
+	\item This coupling and reliance on \ups is such that a user trying to build a
+  package using \cetbuildtools has no way to
+  make it use system or any other non-\ups installs of the required packages,
+  even if these meet all version requirements.
+  
+	\item \cetbuildtools is highly specialized on using GCC as the compiler, and
+  subsequently code in \art has been found to contain GCC-isms and code
+  non-compliant with the C++11/14 standard.
+  
+	\item If a package \textbf{A} uses \cetbuildtools, then a package \textbf{B} which uses \textbf{A}
+  will be required to also use \cetbuildtools (and thus \ups). This makes
+  decoupling any client of \larsoft/\art from \ups and \cetbuildtools via
+  a build-time ``firewall'' very difficult to implement.
+  
+	\item Most functionality in \cetbuildtools demonstrates a fundamental
+  lack of understanding of CMake and its capabilities/limitations (including
+  package finding, import/export targets, target properties and globbing).
+  
+	\item Much of the \cetbuildtools functionality is in the form of undocumented,
+  heavyweight wrappers around core CMake functions, making the tool \textit{more
+  difficult} to use. These wrappers also enforce source and binary layout
+  conventions on the user which are of little benefit for either development
+  or runtime use cases.
+\end{itemize}
+
+
+In short, \cetbuildtools fails to implement a portable and easy to use
+build interface.  Any project using \cetbuildtools is
+unbuildable without an entire local replication of a \ups stack. This is
+an inversion of the usual hierarchy used in industry standard build systems,
+e.g. a \texttt{Makefile}, sitting under a configuration/packaging system, e.g. RPM.
+
+\section{New Components}
+\subsection{The \worch build automation tool}
+
+The purification process leaves us with a package-level build system
+which is no longer entangled with a build configuration system, as is
+best practice.  Instead a higher level build configuration and
+automation system based on \worch\cite{worchgh} is utilized.
+
+
+\worch is a general purpose task configuration and automation tool
+with a focus on developing a cohesive build system for an entire suite
+of software.  Unlike the \ups/CET build system it can be used to
+orchestrate the production of all of LBNE software instead of just
+being limited to \art based packages.
+
+\worch is an extension of an existing, proven tool called
+\waf\cite{waf}.  \waf provides a low-level build system akin to CMake
+(although it does not rely on Make) and it is used to build large,
+high profile projects such as Samba.  In addition, \waf provides
+facilities to extend it to create meta-build systems which work by
+driving whatever native build system may exist for a given package
+(eg, CMake or autoconf).  It is exactly this support that \worch
+exploits.  The ``heavy lifting'' is done by \waf and \worch merely
+adds a simple, declarative build configuration language and the
+\waf-based ``glue code'' to interpret this language into waf
+installation tasks.  \waf does the rest.  The set of suite-specific
+\worch configuration files (and any suite-specific waf extension
+modules) are then all that are needed to fully specify and define the
+production of a release of a complex software suite.  Placing these in
+a code repository allows a single tag to precisely specify a release
+for the entire software stack used by the experiment.
+
+The Fermilab build system does not provide a concise method to define
+a release and instead spreads configuration management across many
+scripts, generated and hand written.  \worch allows for precise
+description of the build configuration information in a single text
+file or factored out, where it is convenient, into a few
+domain-specific ones.  These simple text files completely define what
+will be part of the release.  This includes which packages, their
+versions and file system layout of the results.  This configuration
+mechanism naturally lends itself to suite-wide release management
+mechanisms based simply on keeping the configuration files in their
+own code repository.
+
+
+Unlike the Fermilab build system, \worch does not place any
+requirements on the packages it builds.  Because it does not assume
+any policy but rather allows for policy to be expressed in the
+configuration, it can produce a variety of build products from the
+same source and at the same time.  For example, it can be used to
+build \ups tarballs, Environment Modules, RPM and Debian packages or
+others.
+
+
+Also in contrast to the Fermilab build system which is a  collection
+of intermixed scripts and configuration information, \worch follows a
+design that can be easily extended and in a way where extensions may
+be shared by different projects.  \worch makes better use of build
+hardware which is important for large software suites.  Besides being
+automated if allows for inter-package parallelism.  Tasks run as
+parallel as possible limited only by their inter-dependencies and the
+available hardware.
+
+
+\worch is a general purpose tool that will make managing the production
+of releases of complex suites of software for multiple, partly related
+experiments far easier than how things are currently done by Fermilab.
+\worch is also simple enough that even groups with relatively modest
+software stacks can benefit from the automation and configuration
+management that it provides.
+
+
+\subsection{Current Status}
+The current status of the ``purification" of the low-level CMake build
+system is described. Here the \art packages are \code{cpp0x}, \code{cetlib},
+\code{fhicl-cpp} and \code{messagefacility} and \art itself, and \larsoft refers to
+its current count of ten packages.
+\begin{itemize}
+
+\item An LBNE GitHub organization\cite{lbneghorg} has been established
+  as an interim center of development.  This is done to minimize
+  disruption that might otherwise be caused for the current users and
+  developers of \lbnecode, \larsoft and \art.
+
+\item The \art repositories are forked into this organization in a way
+  that "upstream" commits pushed to Fermilab Redmine repositories
+  continue to be tracked. Git's decentralized nature also means that
+  commits on the GitHub repositories can be pulled into the Redmine
+  repositories in the future.
+  
+\item A new \code{FNALCore} package\cite{fnalcoregh} is developed that
+  aggregates the \art packages (except the main \art package itself)
+  as well as holds their purified CMake files. An aggregation has been
+  performed due to the heavy interdependencies between these packages
+  and their intent as a foundation library for \art.
+
+\item Purified CMake files are developed for \art itself in the
+  \code{fnal-art} repository\cite{fnalartgh}.
+
+\item The \code{lbne-build} repository\cite{lbnebuildgh} was created
+  in the LBNE GitHub organization. It houses a \worch configuration
+  and tools to build all the 3rd-party external packages,
+  \code{FNALCore} and \code{fnal-art} from source.
+
+\item The patterns applied to \art packages have been pushed up the
+  stack through \larsoft and \lbnecode.
+
+\item A \code{python-ups-utils} package\cite{urman} was developed to
+  provide installation methods for binary UPS tarball packages as well
+  as initialize a green field as a \ups products area, including
+  downloading, building and installing \ups itself.
+
+\item A \code{worch-ups} package\cite{worchups} was developed which
+  provides \worch/\waf extensions to support the creation of binary
+  \ups tarball packs from the results of \worch builds.
+
+\item Support for \code{worch-ups} has been added to \code{lbne-build}
+  with some initial testing complete.
+
+\item Building these packages with \worch has been tested on at least
+  Ubuntu (14.04) and Scientific Linux (6.4) and in a by-hand manner on
+  Mac OS X.
+\end{itemize}
+
+
+\subsection{Plan}
+
+The plan going forward is meant to satisfy these goals:
+\begin{itemize}
+	\item Push the commits of the purified CMake work into "upstream"
+    repositories so that they no longer need to be held in separate
+    tracking forks.
+	\item Minimize disruption on the user base and provide an partly adiabatic
+    change.
+	\item Provide time for ongoing testing and improving of the purified CMake
+    files while furthering and allowing the other goals.
+\end{itemize}
+
+
+\noindent The plan is in three major parts:
+
+\begin{itemize}
+	\item Continue to apply the CMake purification up through the LArSoft and the LBNE-specific
+    \lbnecode packages. In the same manner as with \code{fnal-art}, push
+    commits to GitHub in forks which track their upstream repositories
+    and in step add to code{lbne-build} support to build each newly purified
+    package. During this phase, \worch-related development is also needed
+    in order to create \ups binary product "tarballs" from the build
+    results and thus retain user-level status quo in the end.
+	\item Change over from GitHub-based repositories to pushing commits to
+    upstream repositories (in Fermilab Redmine/git). Do this by first purifying 
+    \lbnecode as above (and in GitHub) and then porting these changes into the
+    \lbnecode Redmine git repository with all changes placed behind a
+    ``switch'' that defaults to the \ups-entangled build. Factor
+    \code{lbne-build} to support building this "switched" pure-CMake
+    \lbnecode package against dependencies provided by \ups.
+	\item With acceptance (and hopefully assistance) by the LArSoft group,
+    continue porting the CMake purification, still kept switched off by
+    default, to the LArSoft Redmine repositories and updating
+    \code{lbne-build} to follow suit. Then, do likewise for the \art
+    packages. At some suitable point "flip the switch" so the entire
+    stack is built in a pure-CMake manner with \worch.
+\end{itemize}
+
+
+\subsection{Interaction with other efforts}
+
+Up until step three, this effort does not interfere with others. At step
+three, buy-in by \larsoft and \art developers and the Fermilab software
+builders is required. However, before even making significant process on
+step one it must be determined if Fermilab will accept the changes that
+will be made in steps two and three. If not accepted, LBNE will revise
+this plan  since it would be 
+easier to remove the backward compatibility features, including removing \ups entirely, 
+and use a git merging strategy to maintain the LBNE alternative build system.
+
+\section{Work Schedule}
+
+Due to the decision making and buy-in process described above, a
+precise timeline for rollout of the plan cannot be given, however, we can provide  estimates
+of effort needed for a specific, non-comprehensive set of items:
+\begin{itemize}
+\item Complete purification of \larsoft/\lbnecode (largely done) and test : 1 week FTE
+\item Further testing of \worch feature to produce \ups tarballs:  1 week FTE
+\item Port purification from GitHub repositories to Redmine ones
+  (lbnecode, larsoft, art): 1 week FTE
+\end{itemize}
+
+Estimates are integrated coding time and do not take into account
+necessary discussions, assume that \art and \larsoft developers agree
+to this approach and with not contingency to account for unforeseen
+technical problems.  Also not included is defining and enacting a
+campaign of testing and validation including integration into the
+Fermilab Jenkins continuous integration system.
+
+\begin{thebibliography}{99}
+\bibitem{docdb8035} ``LBNE Software and Computing Requirements'', LBNE DocDB 8035.
+\bibitem{lbneghorg} \url{https://github.com/LBNE}
+\bibitem{fnalcoregh} \url{https://github.com/LBNE/FNALCore}
+\bibitem{fnalartgh} \url{https://github.com/LBNE/fnal-art}
+\bibitem{lbnebuildgh} \url{https://github.com/LBNE/lbne-build}
+\bibitem{worchgh} \url{https://github.com/brettviren/worch}
+\bibitem{waf} \url{https://code.google.com/p/waf/}
+\bibitem{urman} \url{https://github.com/brettviren/python-ups-utils/}
+\bibitem{worchups} \url{https://github.com/brettviren/worch-ups}
+\end{thebibliography}
+
+\end{document}
+
+
+

@@ -8,3 +8,10 @@ dist
 *.egg-info
 test-*
 install
+doc/wp.aux
+doc/wp.fdb_latexmk
+doc/wp.fls
+doc/wp.log
+doc/wp.out
+doc/wp.pdf
+doc/wp.toc
