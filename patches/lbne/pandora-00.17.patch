@@ -1,0 +1,26 @@
+Index: PandoraMonitoring/Makefile
+===================================================================
+--- PandoraMonitoring/Makefile	(revision 1669)
++++ PandoraMonitoring/Makefile	(working copy)
+@@ -39,7 +39,7 @@
+ 
+ install:
+ ifdef INCLUDE_TARGET
+-	rsync -r --exclude=.svn $(PANDORA_DIR)/PandoraMonitoring/include/ ${INCLUDE_TARGET}
++	rsync -r --exclude=.svn $(PANDORA_DIR)/PandoraMonitoring/include/ ${INCLUDE_TARGET}/PandoraMonitoring/include/
+ endif
+ ifdef LIB_TARGET
+ 	cp $(PANDORA_DIR)/lib/libPandoraMonitoring.so ${LIB_TARGET}
+Index: PandoraSDK/Makefile
+===================================================================
+--- PandoraSDK/Makefile	(revision 1669)
++++ PandoraSDK/Makefile	(working copy)
+@@ -43,7 +43,7 @@
+ 
+ install:
+ ifdef INCLUDE_TARGET
+-	rsync -r --exclude=.svn $(PANDORA_DIR)/PandoraSDK/include/ ${INCLUDE_TARGET}
++	rsync -r --exclude=.svn $(PANDORA_DIR)/PandoraSDK/include/ ${INCLUDE_TARGET}/PandoraSDK/include/
+ endif
+ ifdef LIB_TARGET
+ 	cp $(PANDORA_DIR)/lib/libPandoraSDK.so ${LIB_TARGET}

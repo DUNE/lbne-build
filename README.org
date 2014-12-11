@@ -34,6 +34,7 @@ You will need at least these:
   $ yum install bzip2-devel libX11-devel libXmu-devel \
                 mesa-libGL-devel mesa-libGLU-devel \
                 doxygen-latex tcl-devel
+           doxygen-latex libtool libbz2-dev libreadline-dev automake
 #+END_EXAMPLE
 
 
@@ -98,10 +99,18 @@ Either create a new Virtual Environment (run "=deactivate=" to deactivate the cu
   $ source /path/to/venv/bin/activate
   $ mkdir -p /path/to/work
   $ cd /path/to/work
+
+  $ git clone git@github.com:brettviren/worch-ups.git
+  $ cd worch-ups 
+  $ python setup.py sdist
+  $ pip install dist/worch-ups-X.Y.tar.gz 
+  $ cd ..
+
   $ git clone git@github.com:LBNE/lbne-build.git
   $ cd lbne-build
   $ python setup.py sdist
   $ pip install dist/lbne-build-X.Y.tar.gz
+  $ cd ..
 #+END_EXAMPLE
 
 Replace =X.Y= with whatever version is built. 

@@ -13,14 +13,14 @@ from setuptools import setup, find_packages
 #     return git("describe --dirty")
 
 setup(name = 'lbne-build',
-      version = '0.3.5',
+      version = '0.4.0',
       description = 'Worch/waf tools to build LBNE software.',
       author = 'Brett Viren',
       author_email = 'brett.viren@gmail.com',
       license = 'GPLv2',
       url = 'http://github.com/LBNE/lbne-build',
       namespace_packages = ['worch'],
-      packages = ['worch','worch.lbne','worch.lbne.tbbinst'],
+      packages = ['worch','worch.lbne','worch.lbne.tbbinst','worch.lbne.pandorasrc'],
       install_requires = [l for l in open("requirements.txt").readlines() if l.strip()],
       data_files = [
           ('share/worch/config/lbne', glob('config/*.cfg')),
