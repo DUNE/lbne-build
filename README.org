@@ -25,6 +25,15 @@ You will need at least these:
     $ sudo apt-get install \
            libbz2-dev libx11-dev  libxmu-dev \
            libgl1-mesa-dev libglu1-mesa-dev \
+           doxygen-latex libtool libbz2-dev libreadline-dev automake libncurses5-dev
+#+END_EXAMPLE
+
+** Fedora Core 20
+
+#+BEGIN_EXAMPLE
+  $ yum install bzip2-devel libX11-devel libXmu-devel \
+                mesa-libGL-devel mesa-libGLU-devel \
+                doxygen-latex tcl-devel
            doxygen-latex libtool libbz2-dev libreadline-dev automake
 #+END_EXAMPLE
 
@@ -90,9 +99,18 @@ Either create a new Virtual Environment (run "=deactivate=" to deactivate the cu
   $ source /path/to/venv/bin/activate
   $ mkdir -p /path/to/work
   $ cd /path/to/work
+
+  $ git clone git@github.com:brettviren/worch-ups.git
+  $ cd worch-ups 
+  $ python setup.py sdist
+  $ pip install dist/worch-ups-X.Y.tar.gz 
+  $ cd ..
+
   $ git clone git@github.com:LBNE/lbne-build.git
+  $ cd lbne-build
   $ python setup.py sdist
   $ pip install dist/lbne-build-X.Y.tar.gz
+  $ cd ..
 #+END_EXAMPLE
 
 Replace =X.Y= with whatever version is built. 
@@ -100,9 +118,11 @@ Replace =X.Y= with whatever version is built.
 After hacking on the =lbne-build= file reinstall everything like:
 
 #+BEGIN_EXAMPLE
+  $ cd lbne-build
   $ pip uninstall -y lbne-build
   $ python setup.py sdist
   $ pip install dist/lbne-build-X.Y.tar.gz
+  $ cd -
 #+END_EXAMPLE
 
 To actually run the build one does the same as if installing an official release:
