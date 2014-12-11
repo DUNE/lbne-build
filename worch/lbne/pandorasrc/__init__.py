@@ -40,7 +40,7 @@ def single_cmd_rule(func):
 @single_cmd_rule
 def do_svn(tgen):
     tag = tgen.worch.get('vcs_tag', '')
-    pat = "svn checkout {source_url}/PandoraPFANew/tags/{vcs_tag_opt} {source_unpacked};svn checkout {source_url}/PandoraSDK/tags/{vcs_tag_opt} {source_unpacked}/PandoraSDK;svn checkout {source_url}/PandoraMonitoring/tags/{vcs_tag_opt} {source_unpacked}/PandoraMonitoring"
+    pat = "svn --non-interactive --trust-server-cert checkout {source_url}/PandoraPFANew/tags/{vcs_tag_opt} {source_unpacked};svn --non-interactive --trust-server-cert checkout {source_url}/PandoraSDK/tags/{vcs_tag_opt} {source_unpacked}/PandoraSDK;svn --non-interactive --trust-server-cert checkout {source_url}/PandoraMonitoring/tags/{vcs_tag_opt} {source_unpacked}/PandoraMonitoring"
     return tgen.worch.format(pat, vcs_tag_opt = tag)
 
 
