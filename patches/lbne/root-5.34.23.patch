@@ -1,0 +1,20 @@
+diff --git a/graf3d/ftgl/CMakeLists.txt b/graf3d/ftgl/CMakeLists.txt
+index 0e2dc54..7216044 100644
+--- a/graf3d/ftgl/CMakeLists.txt
++++ b/graf3d/ftgl/CMakeLists.txt
+@@ -2,7 +2,7 @@
+ # CMakeLists.txt file for building ROOT graf3d/ftgl package
+ ############################################################################
+ 
+-include_directories(${OPENGL_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
++include_directories(${FREETYPE_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCEDIR}/inc ${OPENGL_INCLUDE_DIR} )
+ if(MACOSX_GLU_DEPRECATED)
+   add_definitions(-Wno-deprecated-declarations)
+ endif()
+@@ -11,5 +11,5 @@ ROOT_LINKER_LIBRARY(FTGL *.cxx LIBRARIES ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARIE
+ if(builtin_freetype)
+   add_dependencies(FTGL FREETYPE)
+ endif()
+-ROOT_INSTALL_HEADERS()
++#ROOT_INSTALL_HEADERS()
+ 
