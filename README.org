@@ -32,31 +32,41 @@ You will need at least these:
 
 ** Fedora Core 20
 
+Starting from a base =netinst= of FC20 here are the packages that need to be installed:
+
 #+BEGIN_EXAMPLE
-  $ yum install bzip2-devel libX11-devel libXmu-devel \
-                mesa-libGL-devel mesa-libGLU-devel \
-                doxygen-latex tcl-devel
-           doxygen-latex libtool libbz2-dev libreadline-dev automake
+  $ sudo yum install python-virtualenv git gcc-c++ m4 subversion patch automake flex \
+                     ncurses-devel zlib-devel libtool bzip2-devel \
+                     libX11-devel libXmu-devel libXpm-devel libXft-devel \
+                     mesa-libGL-devel mesa-libGLU-devel \
+                     doxygen-latex tcl-devel \
+                     libtool libbz2-dev libreadline-dev automake \
+                     expat-devl readline-devel krb5-devel
 #+END_EXAMPLE
 
 
 * Instructions
 
-** Install the build environment
-
-The build environment is installed in a standard Python manner.  It is recommended to install it into a Virtual Environment:
+The build environment is provided by a few Python modules.  It is recommended that these be installed into a =virtualenv= virtual environment.  To set up for this do:
 
 #+BEGIN_EXAMPLE
   $ virtualenv /path/to/venv
   $ source /path/to/venv/bin/activate
-  $ pip install git+git://github.com/LBNE/lbne-build@X.Y
-  $ waf --version
 #+END_EXAMPLE
 
-Notes:
+The rest of the instructions assume this.
 
- - if your system does not have the Virtual Environment tool =virtualenv= see [[http://virtualenv.readthedocs.org/en/latest/virtualenv.html#installation][this page]].
- - the example uses the mythological version tag =X.Y=.  Replace this with the actual version string or remove =@X.Y= to use the tip of the master branch.
+** Install the latest release build environment
+
+Releases of =lbne-build= and its few dependencies are placed on PyPI and may be installed simply via:
+
+#+BEGIN_EXAMPLE
+  $ pip install lbne-build
+#+END_EXAMPLE
+
+** Installing an older release
+
+T.B.D.
 
 ** Selecting the suite to build
 
@@ -66,9 +76,9 @@ The installation is driven by a top level configuration file which will be found
   $ ls /path/to/venv/share/worch/config/lbne/suite-*.cfg
 #+END_EXAMPLE
 
-** Configuring for building
+** Prepare for building
 
-The build will need a substantial amount of disk space (10's of GB) for intermediate build products.  This is best located on fast, local disk.  After the build is complete, it can be removed or, if more than one suite is desired, reused.  A final installation location must also be determined.  This will require many GBs of space.  With the suite name determined from the above listing the build is configured with:
+The build will need a substantial amount of disk space (10's of GB) for intermediate build products.  This is best located on fast, local disk.  After the build is complete, it can be removed or, if more than one suite is desired, reused to avoid rebuilding shared packages multiple times.  A final installation location must also be determined.  This will require many GBs of space.  With the suite name determined from the above listing the build is configured with:
 
 #+BEGIN_EXAMPLE
   $ cd /path/to/build
