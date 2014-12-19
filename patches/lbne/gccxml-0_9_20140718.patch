@@ -1,0 +1,90 @@
+diff --git a/GCC_XML/Support/GCC/4.5/sys/cdefs.h b/GCC_XML/Support/GCC/4.5/sys/cdefs.h
+new file mode 100644
+index 0000000..4e8fd25
+--- /dev/null
++++ b/GCC_XML/Support/GCC/4.5/sys/cdefs.h
+@@ -0,0 +1,12 @@
++#ifndef GCCXML_MAVERICKS_CDEFS_H
++#define GCCXML_MAVERICKS_CDEFS_H
++/*
++Required on Mavericks to prevent use of a GCC 4.5+ form for the
++ "deprecated" attribute that is not supported by GCCXML's GCC 4.2 parser.
++ */
++#include_next<sys/cdefs.h>
++
++#undef __deprecated_msg
++#define __deprecated_msg(_msg) __attribute__((deprecated))
++
++#endif
+diff --git a/GCC_XML/Support/GCC/4.6/sys/cdefs.h b/GCC_XML/Support/GCC/4.6/sys/cdefs.h
+new file mode 100644
+index 0000000..4e8fd25
+--- /dev/null
++++ b/GCC_XML/Support/GCC/4.6/sys/cdefs.h
+@@ -0,0 +1,12 @@
++#ifndef GCCXML_MAVERICKS_CDEFS_H
++#define GCCXML_MAVERICKS_CDEFS_H
++/*
++Required on Mavericks to prevent use of a GCC 4.5+ form for the
++ "deprecated" attribute that is not supported by GCCXML's GCC 4.2 parser.
++ */
++#include_next<sys/cdefs.h>
++
++#undef __deprecated_msg
++#define __deprecated_msg(_msg) __attribute__((deprecated))
++
++#endif
+diff --git a/GCC_XML/Support/GCC/4.7/sys/cdefs.h b/GCC_XML/Support/GCC/4.7/sys/cdefs.h
+new file mode 100644
+index 0000000..4e8fd25
+--- /dev/null
++++ b/GCC_XML/Support/GCC/4.7/sys/cdefs.h
+@@ -0,0 +1,12 @@
++#ifndef GCCXML_MAVERICKS_CDEFS_H
++#define GCCXML_MAVERICKS_CDEFS_H
++/*
++Required on Mavericks to prevent use of a GCC 4.5+ form for the
++ "deprecated" attribute that is not supported by GCCXML's GCC 4.2 parser.
++ */
++#include_next<sys/cdefs.h>
++
++#undef __deprecated_msg
++#define __deprecated_msg(_msg) __attribute__((deprecated))
++
++#endif
+diff --git a/GCC_XML/Support/GCC/4.8/sys/cdefs.h b/GCC_XML/Support/GCC/4.8/sys/cdefs.h
+new file mode 100644
+index 0000000..4e8fd25
+--- /dev/null
++++ b/GCC_XML/Support/GCC/4.8/sys/cdefs.h
+@@ -0,0 +1,12 @@
++#ifndef GCCXML_MAVERICKS_CDEFS_H
++#define GCCXML_MAVERICKS_CDEFS_H
++/*
++Required on Mavericks to prevent use of a GCC 4.5+ form for the
++ "deprecated" attribute that is not supported by GCCXML's GCC 4.2 parser.
++ */
++#include_next<sys/cdefs.h>
++
++#undef __deprecated_msg
++#define __deprecated_msg(_msg) __attribute__((deprecated))
++
++#endif
+diff --git a/GCC_XML/Support/GCC/4.9/sys/cdefs.h b/GCC_XML/Support/GCC/4.9/sys/cdefs.h
+new file mode 100644
+index 0000000..4e8fd25
+--- /dev/null
++++ b/GCC_XML/Support/GCC/4.9/sys/cdefs.h
+@@ -0,0 +1,12 @@
++#ifndef GCCXML_MAVERICKS_CDEFS_H
++#define GCCXML_MAVERICKS_CDEFS_H
++/*
++Required on Mavericks to prevent use of a GCC 4.5+ form for the
++ "deprecated" attribute that is not supported by GCCXML's GCC 4.2 parser.
++ */
++#include_next<sys/cdefs.h>
++
++#undef __deprecated_msg
++#define __deprecated_msg(_msg) __attribute__((deprecated))
++
++#endif
