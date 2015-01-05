@@ -7,7 +7,7 @@ index 0e2dc54..7216044 100644
  ############################################################################
  
 -include_directories(${OPENGL_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
-+include_directories(${FREETYPE_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCEDIR}/inc ${OPENGL_INCLUDE_DIR} )
++include_directories(${FREETYPE_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/inc ${OPENGL_INCLUDE_DIR} )
  if(MACOSX_GLU_DEPRECATED)
    add_definitions(-Wno-deprecated-declarations)
  endif()
