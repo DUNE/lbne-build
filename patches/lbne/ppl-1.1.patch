@@ -1,0 +1,45 @@
+diff -u -r ppl-1.1/src/CO_Tree_defs.hh ppl-1.1.mod/src/CO_Tree_defs.hh
+--- ppl-1.1/src/CO_Tree_defs.hh	2013-10-28 08:38:33.000000000 -0400
++++ ppl-1.1.mod/src/CO_Tree_defs.hh	2015-01-12 12:53:03.460778321 -0500
+@@ -23,7 +23,7 @@
+ 
+ #ifndef PPL_CO_Tree_defs_hh
+ #define PPL_CO_Tree_defs_hh 1
+-
++#include <stddef.h>
+ #include "CO_Tree_types.hh"
+ 
+ #include "Coefficient_defs.hh"
+diff -u -r ppl-1.1/src/CO_Tree_inlines.hh ppl-1.1.mod/src/CO_Tree_inlines.hh
+--- ppl-1.1/src/CO_Tree_inlines.hh	2013-10-28 08:38:33.000000000 -0400
++++ ppl-1.1.mod/src/CO_Tree_inlines.hh	2015-01-12 12:50:19.818118662 -0500
+@@ -23,6 +23,7 @@
+ 
+ #ifndef PPL_CO_Tree_inlines_hh
+ #define PPL_CO_Tree_inlines_hh 1
++#include <stddef.h>
+ 
+ namespace Parma_Polyhedra_Library {
+ 
+diff -u -r ppl-1.1/src/Dense_Row_defs.hh ppl-1.1.mod/src/Dense_Row_defs.hh
+--- ppl-1.1/src/Dense_Row_defs.hh	2013-10-28 08:38:33.000000000 -0400
++++ ppl-1.1.mod/src/Dense_Row_defs.hh	2015-01-12 12:46:28.672014471 -0500
+@@ -33,6 +33,7 @@
+ #include <memory>
+ #include <vector>
+ #include <limits>
++#include <stddef.h>
+ 
+ #ifdef PPL_DOXYGEN_INCLUDE_IMPLEMENTATION_DETAILS
+ //! A finite sequence of coefficients.
+diff -u -r ppl-1.1/src/Linear_Expression_Interface_defs.hh ppl-1.1.mod/src/Linear_Expression_Interface_defs.hh
+--- ppl-1.1/src/Linear_Expression_Interface_defs.hh	2013-10-28 08:38:33.000000000 -0400
++++ ppl-1.1.mod/src/Linear_Expression_Interface_defs.hh	2015-01-12 12:47:31.427499458 -0500
+@@ -32,6 +32,7 @@
+ #include "Sparse_Row_types.hh"
+ #include <vector>
+ #include <set>
++#include <stddef.h>
+ 
+ #ifdef PPL_DOXYGEN_INCLUDE_IMPLEMENTATION_DETAILS
+ //! A linear expression.
