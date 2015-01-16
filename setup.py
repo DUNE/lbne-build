@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 #     return git("describe --dirty")
 
 setup(name = 'lbne-build',
-      version = '0.5.2+dev',
+      version = '0.6.0',
       description = 'Worch/waf tools to build LBNE software.',
       author = 'Brett Viren',
       author_email = 'brett.viren@gmail.com',
