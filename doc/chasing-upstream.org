@@ -1,0 +1,52 @@
+#+TITLE: Chasing Upstream Git
+#+DATE: [2015-02-04 Wed 17:00]
+#+DESCRIPTION: After forking a Git project it can be desireable to incorporate further development in the original repository.  If git-subtrees are used that adds and extra wrinkle.  Then, toss git-flow into the picture.
+#+SETUPFILE: ~/org-pub/topics/setup.org
+
+LBNE has forked the art and LArSoft git repositories which live in "upstream" Fermilab Redmine/git into GitHub repositories in the [[https://github.com/LBNE][LBNE organization]].  This was done with the intention to initially incorporate subsequent development and eventually push back our development to them.  This topic describes how that is done.
+
+All upstream repositories follow the "git flow" branching policy.  The upstream art, the four packages it depends on (=cpp0x=, =cetlib=, =fhicl-cpp= and =messagesfacility=) and the LArSoft repositories are have equivalent repositories in GitHub.  In addition the four base packages are aggregated into one =FNALCore= via =git-subtree=.  In GitHub, each package sees some light modification centered around their =CMakeLists.txt= files.  Very little of the actual source files are touched except where bugs are found.
+
+* Forging Upstream Link
+
+Taking the =cpp0x= package as an example, here is how to produce a Git repository with connections to both GitHub and upstream.  Upstream takes the conventional default remote "=origin=" and the GitHub remote is, well, "=github=".
+
+#+BEGIN_EXAMPLE
+  $ mkdir fnal
+  $ cd fnal
+  $ git clone http://cdcvs.fnal.gov/projects/cpp0x
+  $ cd cpp0x/
+  $ git remote add github git@github.com:LBNE/fnal-cpp0x.git
+  $ git fetch github
+#+END_EXAMPLE
+
+The LArSoft repos go similarly but they do not have the =fnal-= prefix in the GitHub versions.
+
+* Upstream branching and tagging policy
+
+Upstream follows =git flow= and tags releases on =master=.  Two types of tags are used:
+
+ - package :: looks like =vX_YY_ZZ=
+ - suite :: looks like =<NAME>_SUITE_vX_YY_ZZ=
+
+Suite tags get placed regardless if new package tags are made.  Eg, the =cpp0x= commit tagged with =v1_04_08= has 8 different suite tags.
+
+* Pure-CMake branching and tagging policy
+
+In this policy, any unqualified terms refer to what happens in the GitHub repositories.  Any reference to upstream is qualified as such.
+
+ - branching and release tagging follows "git flow"
+
+ - "=upstream/master=" is treated as a feature branch
+
+ - for a given upstream package-level tag a first release based on it is tagged with the same tag but with a "=-p0=" label appended.
+
+ - a "maintenance" branch is made from the "=-p0=" tag
+
+ - any subsequent fixes needed are applied to that branch and the appended label "=-pN=" is incremented.
+
+ - upstream suite-level tags are ignored here (Worch release management makes suite-level tags redundant)
+
+* Utilities
+
+Docs t.b.d.  See [[../scripts/]].
