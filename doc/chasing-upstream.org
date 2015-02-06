@@ -3,26 +3,19 @@
 #+DESCRIPTION: After forking a Git project it can be desireable to incorporate further development in the original repository.  If git-subtrees are used that adds and extra wrinkle.  Then, toss git-flow into the picture.
 #+SETUPFILE: ~/org-pub/topics/setup.org
 
-LBNE has forked the art and LArSoft git repositories which live in "upstream" Fermilab Redmine/git into GitHub repositories in the [[https://github.com/LBNE][LBNE organization]].  This was done with the intention to initially incorporate subsequent development and eventually push back our development to them.  This topic describes how that is done.
+LBNE has forked the art and LArSoft git repositories which live definitively in "upstream" Fermilab Redmine/git into repositories in the [[https://github.com/LBNE][LBNE GitHub organization]].  The fork was made to provide independent repositories for work on a "pure" CMake build system not entangled with Fermilab-local software infrastructure.  The eventual goal is to push this new build system back upstream but until that is done a method to incorporate new "upstream" development is needed.  This topic describes how that is done.
 
-All upstream repositories follow the "git flow" branching policy.  The upstream art, the four packages it depends on (=cpp0x=, =cetlib=, =fhicl-cpp= and =messagesfacility=) and the LArSoft repositories are have equivalent repositories in GitHub.  In addition the four base packages are aggregated into one =FNALCore= via =git-subtree=.  In GitHub, each package sees some light modification centered around their =CMakeLists.txt= files.  Very little of the actual source files are touched except where bugs are found.
+For every package there are three repositories of interest:
 
-* Forging Upstream Link
+ - upstream :: the Fermilab Redmine/git repository
+ - downstream :: the GitHub repository
+ - local :: the working repository used to sync the two 
 
-Taking the =cpp0x= package as an example, here is how to produce a Git repository with connections to both GitHub and upstream.  Upstream takes the conventional default remote "=origin=" and the GitHub remote is, well, "=github=".
+* Branching policy
 
-#+BEGIN_EXAMPLE
-  $ mkdir fnal
-  $ cd fnal
-  $ git clone http://cdcvs.fnal.gov/projects/cpp0x
-  $ cd cpp0x/
-  $ git remote add github git@github.com:LBNE/fnal-cpp0x.git
-  $ git fetch github
-#+END_EXAMPLE
+In early development there was no consistent branching in the GitHub repository.  To efficiently track upstream this consistency must be enforced as described here. 
 
-The LArSoft repos go similarly but they do not have the =fnal-= prefix in the GitHub versions.
-
-* Upstream branching and tagging policy
+** Upstream policy
 
 Upstream follows =git flow= and tags releases on =master=.  Two types of tags are used:
 
@@ -31,22 +24,85 @@ Upstream follows =git flow= and tags releases on =master=.  Two types of tags ar
 
 Suite tags get placed regardless if new package tags are made.  Eg, the =cpp0x= commit tagged with =v1_04_08= has 8 different suite tags.
 
-* Pure-CMake branching and tagging policy
+** Downstream policy
 
-In this policy, any unqualified terms refer to what happens in the GitHub repositories.  Any reference to upstream is qualified as such.
+Some rules are needed to keep development of the build system itself
+and chasing upstream separate and sane.  Consistent with =git flow=
+these rules apply to what may and may not be pushed to GitHub:
 
- - branching and release tagging follows "git flow"
+ - new development *must only* be done in a feature branch off of =develop=
+ - *never* merge any branch directly into =master= except a release branch during a =git flow= release
+ - *only* merge tagged upstream releases (from =upstream/master=) and only into a =git flow= release branch as part of a release.
 
- - "=upstream/master=" is treated as a feature branch
+* Forging Upstream-Downstream Link
 
- - for a given upstream package-level tag a first release based on it is tagged with the same tag but with a "=-p0=" label appended.
+The script [[../scripts/upstream.py][=upstream.py=]] provides functionality to chase upstream development according to this policy.   The script provides a series of commands:
 
- - a "maintenance" branch is made from the "=-p0=" tag
+#+BEGIN_EXAMPLE
+  $ upstream.py [-C <workdir>] <command> <options> <args>
+#+END_EXAMPLE
 
- - any subsequent fixes needed are applied to that branch and the appended label "=-pN=" is incremented.
+Default working directory is the current working directory.
 
- - upstream suite-level tags are ignored here (Worch release management makes suite-level tags redundant)
+For details see:
 
-* Utilities
+#+BEGIN_EXAMPLE
+  $ upstream.py --help
+#+END_EXAMPLE
 
-Docs t.b.d.  See [[../scripts/]].
+Green field setup
+
+#+BEGIN_EXAMPLE
+  $ upstream.py -C chasing init
+#+END_EXAMPLE
+
+This brings all commits and leaves local repo empty but ready for git flow.
+
+* Initial setup
+
+Most of the development in GitHub is done in =remove-ups*= branches.
+
+** art
+
+- art :: =remove-ups-1.11.3= rooted in =v1_11_03=
+
+This version is part of this release: 
+
+#+BEGIN_EXAMPLE
+  $ upstream.py -C chasing suite-release art  v1_11_03
+  v1_04_08 cpp0x
+  v1_07_02 cetlib
+  v3_01_01 fhicl-cpp
+  v1_11_14 messagefacility
+  v1_11_03 art
+#+END_EXAMPLE
+
+For the most part the non-art art packages are untouched and all the activity is in =FNALCore=
+
+*** FNALCore
+
+The purification for the four non-art art packages is done in FNALCore which incorporates them via =git-subtree=.  It's really difficult to figure out how to track this!
+
+** larsoft
+
+- larana :: =remove-ups= rooted in =v03_03_02=
+- lardata :: =remove-ups= rooted in =v03_03_02=
+- larcore :: =remove=ups= rooted in =v03_03_03=
+
+Which are part of this release:
+
+#+BEGIN_EXAMPLE
+  $ upstream.py -C chasing suite-release lar  v03_03_02
+  v03_02_03 larana
+  v03_02_02 lardata
+  v03_02_02 larevt
+  v03_03_01 larpandora
+  v03_02_02 larsim
+  v03_02_02 larcore
+  v03_02_02 lareventdisplay
+  v03_02_02 larexamples
+  v03_02_03 larreco
+  v03_03_02 larsoft
+#+END_EXAMPLE
+
+This is actually associated with using art =v1_10_00b=.  The next highest art suite which is used is =v1_12_04= by larsoft suite =v03_04_02=.
