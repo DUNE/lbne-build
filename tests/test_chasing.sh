@@ -106,8 +106,16 @@ twerk_subtrees () {
     twerkit messagefacility 1dcf11eafe1ac2612a0e222ac3fcc90fcdbeccea v1_11_1{4..5} v1_13_00
 }
 
+
+twerk_fnalcore () {
+    cloneit FNALCore down
+    git clone $workdir/dnstream-FNALCore.git $workdir/FNALCore
+    for name in cpp0x cetlib messagefacility fhicl-cpp
+    do
+	git remote add ${name}-upstream $workdir/dnstream-${name}.git
+	git fetch ${name}-upstream
+    done
+}
+
 #twerk_subtrees
-
-cloneit FNALCore down
-git clone $workdir/dnstream-FNALCore.git $workdir/FNALCore
-
+twerk_fnalcore
