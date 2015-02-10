@@ -117,5 +117,5 @@ twerk_fnalcore () {
     done
 }
 
-#twerk_subtrees
+twerk_subtrees
 twerk_fnalcore
