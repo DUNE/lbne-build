@@ -20,7 +20,7 @@ dsurl () {
     fi
 }
 usurl () {
-    echo "http://cdcvs.fnal.gov/projects/${1}"
+    echo "https://cdcvs.fnal.gov/projects/${1}"
 }
 
 cloneit () {
@@ -95,7 +95,7 @@ twerkit () {
     cloneit $name up
     cloneit $name down
     usdszip $name
-    chase_tags $name $@
+    #chase_tags $name $@
 }
 
 

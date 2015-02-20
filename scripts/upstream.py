@@ -50,7 +50,10 @@ def _package_tag_from_suite_tag(directory, stag):
 
 
 def _init_one_subdir(basedir, pkg, up_url, down_url):
+
     subdir = os.path.join(basedir,pkg)
+    if not os.path.exists(subdir):
+        os.makedirs(subdir)
 
     if pkg in suite_packages['art']:
         down_url = down_url % ('fnal-'+pkg,)
@@ -59,14 +62,24 @@ def _init_one_subdir(basedir, pkg, up_url, down_url):
     if up_url:
         up_url = up_url % pkg
 
-    if not os.path.exists(subdir):
-        os.makedirs(subdir)
+
+    upclone = None
+    if up_url:
+        upclone = os.path.join(basedir, 'upstream-%s.git'%pkg)
+        if  not os.path.exists(upclone):
+            check_call("git clone --bare %s %s" % (up_url, upclone), shell=True)
+
+    dnclone = None
+    if down_url:
+        dnclone = os.path.join(basedir, 'dnstream-%s.git'%pkg)
+        if down_url and not os.path.exists(dnclone):
+            check_call("git clone --bare %s %s" % (down_url, dnclone), shell=True)
 
     if not os.path.exists(os.path.join(subdir,'.git')):
         check_call('git init', shell=True, cwd=subdir)
 
     remotes  = check_output('git remote', shell=True, cwd=subdir).split('\n')
-    for rname, rurl in [('upstream', up_url), ('downstream', down_url)]:
+    for rname, rurl in [('upstream', upclone), ('downstream', dnclone)]:
         if not rurl:
             continue
         if not rname in remotes:
@@ -82,7 +95,7 @@ def _init_one_subdir(basedir, pkg, up_url, down_url):
 
 @cli.command("init")
 @click.option('-u','--upstream-url',
-              default='http://cdcvs.fnal.gov/projects/%s',
+              default='https://cdcvs.fnal.gov/projects/%s',
               help='Upstream git URL, add %s to be filled by package name.')
 @click.option('-d','--downstream-url',
               default='git@github.com:LBNE/%s.git',
