@@ -83,7 +83,7 @@ Index: SimulationBase/CMakeLists.txt
 --- SimulationBase/CMakeLists.txt	(revision 643)
 +++ SimulationBase/CMakeLists.txt	(working copy)
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -124,7 +124,7 @@ Index: altCMakeLists.cmake
 +
 +list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_LIST_DIR}/Modules)
 +
-+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -g -DNDEBUG -fno-omit-frame-pointer")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -O3 -g -DNDEBUG -fno-omit-frame-pointer")
 +
 +
 +find_package(ROOT 5.34.20 REQUIRED)
@@ -501,7 +501,7 @@ Index: NuReweight/art/CMakeLists.txt
 --- NuReweight/art/CMakeLists.txt	(revision 643)
 +++ NuReweight/art/CMakeLists.txt	(working copy)
 @@ -1,4 +1,8 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
  
@@ -520,7 +520,7 @@ Index: NuReweight/CMakeLists.txt
 --- NuReweight/CMakeLists.txt	(revision 643)
 +++ NuReweight/CMakeLists.txt	(working copy)
 @@ -1,4 +1,8 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
  
@@ -613,7 +613,7 @@ Index: EventDisplayBase/CMakeLists.txt
 --- EventDisplayBase/CMakeLists.txt	(revision 643)
 +++ EventDisplayBase/CMakeLists.txt	(working copy)
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -675,7 +675,7 @@ Index: NuBeamWeights/CMakeLists.txt
 --- NuBeamWeights/CMakeLists.txt	(revision 643)
 +++ NuBeamWeights/CMakeLists.txt	(working copy)
 @@ -1,4 +1,8 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
  
@@ -796,7 +796,7 @@ Index: EventGeneratorBase/test/CMakeLists.txt
 --- EventGeneratorBase/test/CMakeLists.txt	(revision 643)
 +++ EventGeneratorBase/test/CMakeLists.txt	(working copy)
 @@ -1,4 +1,8 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
  
@@ -933,7 +933,7 @@ Index: EventGeneratorBase/GENIE/CMakeLists.txt
 --- EventGeneratorBase/GENIE/CMakeLists.txt	(revision 643)
 +++ EventGeneratorBase/GENIE/CMakeLists.txt	(working copy)
 @@ -1,4 +1,8 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
  
@@ -1015,7 +1015,7 @@ Index: EventGeneratorBase/CRY/CMakeLists.txt
 --- EventGeneratorBase/CRY/CMakeLists.txt	(revision 643)
 +++ EventGeneratorBase/CRY/CMakeLists.txt	(working copy)
 @@ -1,4 +1,8 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
  
@@ -1034,7 +1034,7 @@ Index: EventGeneratorBase/CMakeLists.txt
 --- EventGeneratorBase/CMakeLists.txt	(revision 643)
 +++ EventGeneratorBase/CMakeLists.txt	(working copy)
 @@ -1,4 +1,8 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
  
@@ -1377,7 +1377,7 @@ Index: G4Base/CMakeLists.txt
 --- G4Base/CMakeLists.txt	(revision 643)
 +++ G4Base/CMakeLists.txt	(working copy)
 @@ -1,4 +1,8 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
  
@@ -1403,7 +1403,7 @@ Index: ups/CMakeLists.txt
 --- ups/CMakeLists.txt	(revision 643)
 +++ ups/CMakeLists.txt	(working copy)
 @@ -1,6 +1,12 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
  
@@ -1835,7 +1835,7 @@ Index: MagneticField/CMakeLists.txt
 --- MagneticField/CMakeLists.txt	(revision 643)
 +++ MagneticField/CMakeLists.txt	(working copy)
 @@ -1,4 +1,8 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
  
@@ -1854,7 +1854,7 @@ Index: CMakeLists.txt
 --- CMakeLists.txt	(revision 643)
 +++ CMakeLists.txt	(working copy)
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +

@@ -1,9 +1,9 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 41ef18c..2d4e8af 100644
+index 41ef18c..833e0bb 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -18,7 +18,7 @@ index 41ef18c..2d4e8af 100644
 +ENDIF()
 diff --git a/altCMakeLists.cmake b/altCMakeLists.cmake
 new file mode 100644
-index 0000000..d124c7d
+index 0000000..62a7892
 --- /dev/null
 +++ b/altCMakeLists.cmake
 @@ -0,0 +1,61 @@
@@ -36,7 +36,7 @@ index 0000000..d124c7d
 +
 +list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_LIST_DIR})
 +
-+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -g -DNDEBUG -fno-omit-frame-pointer")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -O3 -g -DNDEBUG -fno-omit-frame-pointer")
 +
 +
 +find_package(FNALCore 0.1.0 REQUIRED)
@@ -84,11 +84,11 @@ index 0000000..d124c7d
 +  )
 +
 diff --git a/artdaq-core/ArtModules/CMakeLists.txt b/artdaq-core/ArtModules/CMakeLists.txt
-index 66202c0..4a9e2a2 100644
+index 66202c0..ec4adcb 100644
 --- a/artdaq-core/ArtModules/CMakeLists.txt
 +++ b/artdaq-core/ArtModules/CMakeLists.txt
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -126,11 +126,11 @@ index 0000000..dd73455
 +
 +
 diff --git a/artdaq-core/BuildInfo/CMakeLists.txt b/artdaq-core/BuildInfo/CMakeLists.txt
-index 9d88a20..4b47704 100644
+index 9d88a20..72bdfc2 100644
 --- a/artdaq-core/BuildInfo/CMakeLists.txt
 +++ b/artdaq-core/BuildInfo/CMakeLists.txt
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -179,11 +179,11 @@ index 0000000..f4299bb
 +
 +
 diff --git a/artdaq-core/CMakeLists.txt b/artdaq-core/CMakeLists.txt
-index 9d7663a..3bcbed1 100644
+index 9d7663a..f3f2675 100644
 --- a/artdaq-core/CMakeLists.txt
 +++ b/artdaq-core/CMakeLists.txt
 @@ -1,6 +1,12 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -196,11 +196,11 @@ index 9d7663a..3bcbed1 100644
 +
 +ENDIF()
 diff --git a/artdaq-core/Core/CMakeLists.txt b/artdaq-core/Core/CMakeLists.txt
-index 8cfe175..010f8df 100644
+index 8cfe175..b0b9da8 100644
 --- a/artdaq-core/Core/CMakeLists.txt
 +++ b/artdaq-core/Core/CMakeLists.txt
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -257,11 +257,11 @@ index 0000000..1b7b8c4
 +     ${CMAKE_INSTALL_INCLUDEDIR}/artdaq-core/Core COMPONENT Development)
 +
 diff --git a/artdaq-core/Data/CMakeLists.txt b/artdaq-core/Data/CMakeLists.txt
-index 582d562..8c8c36a 100644
+index 582d562..7842b02 100644
 --- a/artdaq-core/Data/CMakeLists.txt
 +++ b/artdaq-core/Data/CMakeLists.txt
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -331,11 +331,11 @@ index 0000000..6c60221
 +
 +
 diff --git a/artdaq-core/Generators/CMakeLists.txt b/artdaq-core/Generators/CMakeLists.txt
-index f156f1f..c3f39d2 100644
+index f156f1f..8402378 100644
 --- a/artdaq-core/Generators/CMakeLists.txt
 +++ b/artdaq-core/Generators/CMakeLists.txt
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -390,11 +390,11 @@ index 0000000..63dc1c6
 +
 +
 diff --git a/artdaq-core/Utilities/CMakeLists.txt b/artdaq-core/Utilities/CMakeLists.txt
-index db65331..3de8c76 100644
+index db65331..4c0dbb0 100644
 --- a/artdaq-core/Utilities/CMakeLists.txt
 +++ b/artdaq-core/Utilities/CMakeLists.txt
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -483,11 +483,11 @@ index 0000000..6435ba1
 +list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_LIST_DIR}")
 +
 diff --git a/test/CMakeLists.txt b/test/CMakeLists.txt
-index 95554ae..9e59f1d 100644
+index 95554ae..a89af71 100644
 --- a/test/CMakeLists.txt
 +++ b/test/CMakeLists.txt
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -501,11 +501,11 @@ index 95554ae..9e59f1d 100644
 +
 +ENDIF()
 diff --git a/test/Data/CMakeLists.txt b/test/Data/CMakeLists.txt
-index eee8c87..d0914b0 100644
+index eee8c87..77e2779 100644
 --- a/test/Data/CMakeLists.txt
 +++ b/test/Data/CMakeLists.txt
 @@ -1,3 +1,7 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -526,11 +526,11 @@ index 0000000..8b13789
 @@ -0,0 +1 @@
 +
 diff --git a/test/Generators/CMakeLists.txt b/test/Generators/CMakeLists.txt
-index 059e1af..a93f8de 100644
+index 059e1af..6a09e3c 100644
 --- a/test/Generators/CMakeLists.txt
 +++ b/test/Generators/CMakeLists.txt
 @@ -1,4 +1,10 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
@@ -556,11 +556,11 @@ index 0000000..13c0939
 +add_subdirectory(Data)
 +add_subdirectory(Generators)
 diff --git a/ups/CMakeLists.txt b/ups/CMakeLists.txt
-index fe33cc7..81c7ad0 100644
+index fe33cc7..6951519 100644
 --- a/ups/CMakeLists.txt
 +++ b/ups/CMakeLists.txt
 @@ -1,6 +1,12 @@
-+IF (PURE_CMAKE)
++IF (ALT_CMAKE)
 +INCLUDE(altCMakeLists.cmake)
 +ELSE()
 +
