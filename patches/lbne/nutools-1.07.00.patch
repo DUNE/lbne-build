@@ -1,31 +1,42 @@
-Index: SimulationBase/CMakeLists.txt
+Index: SimulationBase/altCMakeLists.cmake
 ===================================================================
---- SimulationBase/CMakeLists.txt	(revision 639)
-+++ SimulationBase/CMakeLists.txt	(working copy)
-@@ -1,3 +1,8 @@
+--- SimulationBase/altCMakeLists.cmake	(revision 0)
++++ SimulationBase/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,75 @@
 +include(artTools)
 +include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 +include_directories ( ${ROOT_INCLUDE_DIRS} )
 +
 +
- set( SIMB_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
-                ${ART_FRAMEWORK_CORE}
-                ${ART_FRAMEWORK_IO_ROOT_ROOTINPUT_SOURCE}
-@@ -27,9 +32,50 @@
- 	       ${ROOT_MATHCORE}
- 	       ${ROOT_THREAD} )
- 
--art_make( LIBRARY_NAME SimulationBase
--          LIB_LIBRARIES ${SIMB_LIBS} )
-+#art_make( LIBRARY_NAME SimulationBase
-+#          LIB_LIBRARIES ${SIMB_LIBS} )
-  
--install_headers()
--install_fhicl()
--install_source()
-+#install_headers()
-+#install_fhicl()
-+#install_source()
++set( SIMB_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
++               ${ART_FRAMEWORK_CORE}
++               ${ART_FRAMEWORK_IO_ROOT_ROOTINPUT_SOURCE}
++	       ${ART_PERSISTENCY_COMMON}
++               ${ART_FRAMEWORK_IO_SOURCES}
++               ${ART_FRAMEWORK_PRINCIPAL}
++               ${ART_PERSISTENCY_PROVENANCE}
++               ${ART_UTILITIES}
++               ${MF_MESSAGELOGGER}
++               ${MF_UTILITIES}
++               ${FHICLCPP}
++               ${CETLIB}
++	       ${ROOT_EG}
++	       ${ROOT_CORE}
++	       ${ROOT_CINT} 
++	       ${ROOT_RIO}
++	       ${ROOT_NET}
++	       ${ROOT_HIST} 
++	       ${ROOT_GRAF}
++	       ${ROOT_GRAF3D}
++	       ${ROOT_GPAD}
++	       ${ROOT_TREE}
++	       ${ROOT_RINT}
++	       ${ROOT_POSTSCRIPT}
++	       ${ROOT_MATRIX}
++	       ${ROOT_PHYSICS}
++	       ${ROOT_MATHCORE}
++	       ${ROOT_THREAD} )
++
 +
 +set(SimulationBase_HEADERS 
 +     GTruth.h
@@ -67,172 +78,277 @@ Index: SimulationBase/CMakeLists.txt
 +install(FILES ${SimulationBase_HEADERS} DESTINATION
 +     ${CMAKE_INSTALL_INCLUDEDIR}/SimulationBase COMPONENT Development)
 +
-Index: NuReweight/art/CMakeLists.txt
+Index: SimulationBase/CMakeLists.txt
 ===================================================================
---- NuReweight/art/CMakeLists.txt	(revision 639)
-+++ NuReweight/art/CMakeLists.txt	(working copy)
-@@ -25,18 +25,14 @@
- 	       ${GCHARM}
- 	       ${GCOH}
- 	       ${GDFRC}
--	       ${GDIS}
- 	       ${GCROSSSECTIONS}
--	       ${GDECAY}
- 	       ${GELAS}
- 	       ${GELFF}
- 	       ${GHEP}
- 	       ${GEVGCORE}
--	       ${GEVGMODULES}
- 	       ${GEVGDRIVERS}
- 	       ${GGIBUU}
- 	       ${GHADRONTRANSP}
--	       ${GFRAGMENTATION}
- 	       ${GINTERACTION}
- 	       ${GLLEWELLYNSMITH}
- 	       ${GMEC}
-@@ -45,15 +41,12 @@
- 	       ${GNUE}
- 	       ${GNTUPLE}
- 	       ${GNUCLEAR}
--	       ${GNUMERICAL}
- 	       ${GQPM}
- 	       ${GPDG}
- 	       ${GPDF}
- 	       ${GQEL}
--	       ${GRES}
- 	       ${GREGISTRY}
- 	       ${GREINSEGHAL}
--	       ${GUTILS}
- 	       ${GGEO}
- 	       ${GFLUXDRIVERS}
- 	       ${GMUELOSS}
-@@ -78,22 +71,52 @@
-                ${ROOT_TREEPLAYER} 
-                ${ROOT_FFTW}
-                ${ROOT_REFLEX}
--               ${ROOTSYS}/lib/libEGPythia6.so
-                ${ROOT_GUI}
-            )
- 
--art_make_library( LIBRARY_NAME NuReweightArt
--                  SOURCE NuReweight.cxx
--        	  LIBRARIES SimulationBase
--	                    NuReweight 
--        		    ${NURW_LIBS} )
-+#art_make_library( LIBRARY_NAME NuReweightArt
-+#                  SOURCE NuReweight.cxx
-+#        	  LIBRARIES SimulationBase
-+#	                    NuReweight 
-+#        		    ${NURW_LIBS} )
- 
--simple_plugin( ReweightAna module NuReweightArt
--	                          NuReweight 
--                                  SimulationBase
--                                 ${NURW_LIBS} 
--	       BASENAME_ONLY )
-+#simple_plugin( ReweightAna module NuReweightArt
-+#	                          NuReweight 
-+#                                  SimulationBase
-+#                                 ${NURW_LIBS} 
-+#	       BASENAME_ONLY )
- 
--install_headers()
--install_fhicl()
--install_source()
-+#install_headers()
-+#install_fhicl()
-+#install_source()
+--- SimulationBase/CMakeLists.txt	(revision 643)
++++ SimulationBase/CMakeLists.txt	(working copy)
+@@ -1,3 +1,7 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
 +
-+add_library(NuReweightArt SHARED
-+	NuReweight.h
-+	NuReweight.cxx
-+	)
+ set( SIMB_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
+                ${ART_FRAMEWORK_CORE}
+                ${ART_FRAMEWORK_IO_ROOT_ROOTINPUT_SOURCE}
+@@ -33,3 +37,5 @@
+ install_headers()
+ install_fhicl()
+ install_source()
 +
-+target_link_libraries(NuReweightArt 
-+     SimulationBase NuReweight ${NURW_LIBS} )
-+
-+
-+art_add_module(ReweightAna_module ReweightAna_module.cc)
-+
-+target_link_libraries(ReweightAna_module 
-+     NuReweightArt SimulationBase NuReweight ${NURW_LIBS} )
-+
-+
-+
-+install(TARGETS
-+     NuReweightArt
-+     ReweightAna_module
-+     EXPORT nutoolsLibraries
-+     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-+     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-+     COMPONENT Runtime 
-+     )
-+
-+install(FILES NuReweight.h DESTINATION
-+     ${CMAKE_INSTALL_INCLUDEDIR}/NuReweightArt COMPONENT Development)
-+
-+
-Index: NuReweight/CMakeLists.txt
++ENDIF()
+Index: altCMakeLists.cmake
 ===================================================================
---- NuReweight/CMakeLists.txt	(revision 639)
-+++ NuReweight/CMakeLists.txt	(working copy)
-@@ -1,7 +1,8 @@
- 
- ##cet_add_compiler_flags(CXX -DSETDIFFXSEC_1ARG )
- 
--art_make( LIBRARY_NAME NuReweight
-+#art_make( LIBRARY_NAME NuReweight
+--- altCMakeLists.cmake	(revision 0)
++++ altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,183 @@
++cmake_minimum_required(VERSION 2.8.12)
++if(POLICY CMP0025)
++cmake_policy(SET CMP0025 OLD)
++endif()
++if(POLICY CMP0042)
++cmake_policy(SET CMP0042 NEW)
++endif()
++
++project(nutools)
++set(nutools_VERSION 1.07.00)
++
++
++include(CMakePackageConfigHelpers)
++include(GNUInstallDirs)
++include(CheckCXXCompilerFlag)
++
++set(BASE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/BuildProducts")
++set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_BINDIR}")
++set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_LIBDIR}")
++set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_LIBDIR}")
++
++list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_LIST_DIR}/Modules)
++
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -O3 -g -DNDEBUG -fno-omit-frame-pointer")
++
++
++find_package(ROOT 5.34.20 REQUIRED)
++set(ROOTCINT ${ROOT_rootcint_CMD})
++set(ROOTSYS "${ROOT_DIR}/..")
++find_package(FNALCore 0.1.0 REQUIRED)
++find_package(art 1.11.3 REQUIRED)
++include(artTools)
++find_package(CLHEP 2.2.0.3 REQUIRED)
++find_package(Geant4 9.6.3 REQUIRED)
++find_package(Boost 1.55.0 REQUIRED)
++include_directories(${ROOT_INCLUDE_DIRS})
++include_directories(${art_INCLUDE_DIRS})
++include_directories(${FNALCore_INCLUDE_DIRS})
++include_directories(${Boost_INCLUDE_DIR})
++include_directories(${CLHEP_INCLUDE_DIRS})
++
++message(STATUS "ROOTSYS is ${ROOTSYS}")
++set( ROOT_INC ${ROOTSYS}/include )
++message(STATUS "ROOT_INC is ${ROOT_INC}")
++
++## find_library directives
++# geant4 libraries
++find_library( XERCESC NAMES xerces-c PATHS ${XERCESCROOT}/lib NO_DEFAULT_PATH  )
++find_library( G4FR NAMES G4FR PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4GMOCREN NAMES G4GMocren PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4OPENGL NAMES G4OpenGL PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4RAYTRACER  NAMES G4RayTracer PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4TREE  NAMES G4Tree PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4VRML  NAMES G4VRML PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4ANALYSIS  NAMES G4analysis PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4DIGITS_HITS  NAMES G4digits_hits PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4ERROR_PROPAGATION  NAMES G4error_propagation PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4EVENT  NAMES G4event PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4GEOMETRY  NAMES G4geometry PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4GL2PS  NAMES G4gl2ps PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4GLOBAL  NAMES G4global PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4GRAPHICS_REPS  NAMES G4graphics_reps PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4INTERCOMS  NAMES G4intercoms PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4INTERFACES  NAMES G4interfaces PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4MATERIALS NAMES G4materials PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4MODELING  NAMES G4modeling PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4PARMODELS  NAMES G4parmodels PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4PARTICLES  NAMES G4particles PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4PERSISTENCY  NAMES G4persistency PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4PHYSICSLISTS  NAMES G4physicslists PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4PROCESSES  NAMES G4processes PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4READOUT  NAMES G4readout PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4RUN  NAMES G4run PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4TRACK  NAMES G4track PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4TRACKING  NAMES G4tracking PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4VISHEPREP NAMES G4visHepRep PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4VISXXX NAMES G4visXXX PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4VIS_MANAGEMENT NAMES G4vis_management PATHS  ${G4LIB} NO_DEFAULT_PATH )
++find_library( G4ZLIB  NAMES G4zlib PATHS  ${G4LIB} NO_DEFAULT_PATH )
++# other dependencies
++find_library( PYTHIA6 NAMES Pythia6 PATHS  ${PYLIB} NO_DEFAULT_PATH )
++find_library( LHAPDF NAMES LHAPDF PATHS ${LHAPDF_FQ_DIR}/lib NO_DEFAULT_PATH )
++find_library( LOG4CPP NAMES log4cpp PATHS ${LOG4CPP_FQ_DIR}/lib NO_DEFAULT_PATH )
++find_library( XML2 NAMES xml2 PATHS ${LIBXML2_FQ_DIR}/lib NO_DEFAULT_PATH )
++find_library( CRY NAMES CRY PATHS ${CRYHOME}/lib NO_DEFAULT_PATH )
++# genie
++find_library( GALGORITHM NAMES GAlgorithm PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GBARYONRESONANCE NAMES GBaryonResonance PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GBASE NAMES GBase PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GBODEKYANG NAMES GBodekYang PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GCHARM NAMES GCharm PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GCOH NAMES GCoh PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GDFRC NAMES GDfrc PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GDIS NAMES GDIS PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GCROSSSECTIONS NAMES GCrossSections PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GDECAY NAMES GDecay PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GELAS NAMES GElas PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GELFF NAMES GElFF PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GHEP NAMES GHEP PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GEVGCORE NAMES GEVGCore  PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GEVGMODULES NAMES GEVGModules PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GEVGDRIVERS NAMES GEVGDrivers PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GGIBUU NAMES GGiBUU PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GHADRONTRANSP NAMES GHadronTransp PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GFRAGMENTATION NAMES GFragmentation PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GINTERACTION NAMES GInteraction PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GLLEWELLYNSMITH NAMES GLlewellynSmith  PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GMEC NAMES GMEC PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GMESSENGER NAMES GMessenger PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GNUGAMMA NAMES GNuGamma PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GNUE NAMES GNuE PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GNTUPLE NAMES GNtuple PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GNUCLEAR NAMES GNuclear PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GNUMERICAL NAMES GNumerical PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GQPM NAMES GQPM PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GPDG NAMES GPDG PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GPDF NAMES GPDF PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GQEL NAMES GQEL PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GRES NAMES GRES PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GREGISTRY NAMES GRegistry PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GREINSEGHAL NAMES GReinSeghal PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GUTILS NAMES GUtils PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GGEO NAMES GGeo PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GFLUXDRIVERS NAMES GFluxDrivers PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GMUELOSS NAMES GMuELoss PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GREWEIGHT NAMES GReWeight PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++find_library( GNUCLEONDECAY NAMES GNucleonDecay PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
++
++# include search path
++include_directories ( ${CMAKE_SOURCE_DIR} )
++include_directories ( ${GENIE_INC}/GENIE )
++include_directories ( ${LIBXML2_FQ_DIR}/include/libxml2 )
++include_directories ( ${GEANT4_FQ_DIR}/include )
++include_directories ( ${XERCES_C_INC} )
++include_directories ( ${CRYHOME}/src )
++include_directories ( ${LOG4CPP_INC} )
++# included for Mac OSX using XQuartz for X11, ignored on other systems
++include_directories ( /opt/X11/include )
++
++# source
++add_subdirectory (EventDisplayBase)
++add_subdirectory (EventGeneratorBase)
++add_subdirectory (G4Base)
++add_subdirectory (MagneticField)
++add_subdirectory (NuBeamWeights)
++add_subdirectory (NuReweight)
++add_subdirectory (SimulationBase)
++#add_subdirectory (dk2nu)
++
++# ups - table and config files
++add_subdirectory(ups)
++# packaging utility
++#include(UseCPack)
++
++configure_package_config_file(
++  Modules/nutoolsConfig.cmake.in
++  ${CMAKE_CURRENT_BINARY_DIR}/nutoolsConfig.cmake
++  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/nutools-${nutools_VERSION}
++  PATH_VARS
++    CMAKE_INSTALL_INCLUDEDIR
++    CMAKE_INSTALL_LIBDIR
++  )
++
++write_basic_package_version_file(
++  ${CMAKE_CURRENT_BINARY_DIR}/nutoolsConfigVersion.cmake
++  VERSION ${nutools_VERSION}
++  COMPATIBILITY AnyNewerVersion
++  )
++
++install(FILES
++  ${CMAKE_CURRENT_BINARY_DIR}/nutoolsConfig.cmake
++  ${CMAKE_CURRENT_BINARY_DIR}/nutoolsConfigVersion.cmake
++  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/nutools-${nutools_VERSION}
++  COMPONENT Development
++  )
++
++install(EXPORT nutoolsLibraries
++  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/nutools-${nutools_VERSION}
++  NAMESPACE nutools::
++  COMPONENT Development
++  )
++
++include(ArtCPack)
+Index: NuReweight/altCMakeLists.cmake
+===================================================================
+--- NuReweight/altCMakeLists.cmake	(revision 0)
++++ NuReweight/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,96 @@
++
++##cet_add_compiler_flags(CXX -DSETDIFFXSEC_1ARG )
++
 +set(
-           LIB_LIBRARIES 
-                         ${LOG4CPP}
-                         ${XML2}
-@@ -14,18 +15,14 @@
-                         ${GCHARM}
-                         ${GCOH}
-                         ${GDFRC}
--                        ${GDIS}
-                         ${GCROSSSECTIONS}
--                        ${GDECAY}
-                         ${GELAS}
-                         ${GELFF}
-                         ${GHEP}
-                         ${GEVGCORE}
--                        ${GEVGMODULES}
-                         ${GEVGDRIVERS}
-                         ${GGIBUU}
-                         ${GHADRONTRANSP}
--                        ${GFRAGMENTATION}
-                         ${GINTERACTION}
-                         ${GLLEWELLYNSMITH}
-                         ${GMEC}
-@@ -34,15 +31,12 @@
-                         ${GNUE}
-                         ${GNTUPLE}
-                         ${GNUCLEAR}
--                        ${GNUMERICAL}
-                         ${GQPM}
-                         ${GPDG}
-                         ${GPDF}
-                         ${GQEL}
--                        ${GRES}
-                         ${GREGISTRY}
-                         ${GREINSEGHAL}
--                        ${GUTILS}
-                         ${GGEO}
-                         ${GFLUXDRIVERS}
-                         ${GMUELOSS}
-@@ -65,8 +59,43 @@
- 			${ROOT_THREAD}
- 			)
-  
--install_headers()
--install_fhicl()
--install_source()
-+#install_headers()
-+#install_fhicl()
-+#install_source()
- 
++          LIB_LIBRARIES 
++                        ${LOG4CPP}
++                        ${XML2}
++                        ${PYTHIA6}
++                        ${LHAPDF}
++                        ${GALGORITHM}
++                        ${GBARYONRESONANCE}
++                        ${GBASE}
++                        ${GBODEKYANG}
++                        ${GCHARM}
++                        ${GCOH}
++                        ${GDFRC}
++                        ${GCROSSSECTIONS}
++                        ${GELAS}
++                        ${GELFF}
++                        ${GHEP}
++                        ${GEVGCORE}
++                        ${GEVGDRIVERS}
++                        ${GGIBUU}
++                        ${GHADRONTRANSP}
++                        ${GINTERACTION}
++                        ${GLLEWELLYNSMITH}
++                        ${GMEC}
++                        ${GMESSENGER}
++                        ${GNUGAMMA}
++                        ${GNUE}
++                        ${GNTUPLE}
++                        ${GNUCLEAR}
++                        ${GQPM}
++                        ${GPDG}
++                        ${GPDF}
++                        ${GQEL}
++                        ${GREGISTRY}
++                        ${GREINSEGHAL}
++                        ${GGEO}
++                        ${GFLUXDRIVERS}
++                        ${GMUELOSS}
++                        ${GREWEIGHT}
++                        ${GNUCLEONDECAY}
++	                ${ROOT_CORE}
++			${ROOT_CINT} 
++			${ROOT_RIO}
++			${ROOT_NET}
++			${ROOT_HIST} 
++			${ROOT_GRAF}
++			${ROOT_GRAF3D}
++			${ROOT_GPAD}
++			${ROOT_TREE}
++			${ROOT_RINT}
++			${ROOT_POSTSCRIPT}
++			${ROOT_MATRIX}
++			${ROOT_PHYSICS}
++			${ROOT_MATHCORE}
++			${ROOT_THREAD}
++			)
++ 
 +include_directories (
 +     ${ROOT_INCLUDE_DIRS}
 +     ${CLHEP_INCLUDE_DIRS}
@@ -268,53 +384,217 @@ Index: NuReweight/CMakeLists.txt
 +
 +
 +
- add_subdirectory(art)
-Index: EventDisplayBase/CMakeLists.txt
++add_subdirectory(art)
+Index: NuReweight/art/altCMakeLists.cmake
 ===================================================================
---- EventDisplayBase/CMakeLists.txt	(revision 639)
-+++ EventDisplayBase/CMakeLists.txt	(working copy)
-@@ -1,3 +1,6 @@
+--- NuReweight/art/altCMakeLists.cmake	(revision 0)
++++ NuReweight/art/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,106 @@
++
++set( NURW_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
++               ${ART_FRAMEWORK_SERVICES_OPTIONAL}
++	       ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
++               ${ART_FRAMEWORK_CORE}
++	       ${ART_PERSISTENCY_COMMON}
++               ${ART_FRAMEWORK_IO_SOURCES}
++               ${ART_FRAMEWORK_IO_ROOT}
++               ${ART_FRAMEWORK_IO_ROOT_ROOTINPUT_SOURCE}
++               ${ART_FRAMEWORK_PRINCIPAL}
++               ${ART_PERSISTENCY_PROVENANCE}
++               ${ART_UTILITIES}
++               ${MF_MESSAGELOGGER}
++               ${MF_UTILITIES}
++               ${FHICLCPP}
++               ${CETLIB}
++	       ${LOG4CPP}
++	       ${XML2}
++	       ${PYTHIA6}
++	       ${LHAPDF}
++	       ${GALGORITHM}
++	       ${GBARYONRESONANCE}
++	       ${GBASE}
++	       ${GBODEKYANG}
++	       ${GCHARM}
++	       ${GCOH}
++	       ${GDFRC}
++	       ${GCROSSSECTIONS}
++	       ${GELAS}
++	       ${GELFF}
++	       ${GHEP}
++	       ${GEVGCORE}
++	       ${GEVGDRIVERS}
++	       ${GGIBUU}
++	       ${GHADRONTRANSP}
++	       ${GINTERACTION}
++	       ${GLLEWELLYNSMITH}
++	       ${GMEC}
++	       ${GMESSENGER}
++	       ${GNUGAMMA}
++	       ${GNUE}
++	       ${GNTUPLE}
++	       ${GNUCLEAR}
++	       ${GQPM}
++	       ${GPDG}
++	       ${GPDF}
++	       ${GQEL}
++	       ${GREGISTRY}
++	       ${GREINSEGHAL}
++	       ${GGEO}
++	       ${GFLUXDRIVERS}
++	       ${GMUELOSS}
++	       ${GREWEIGHT}
++	       ${GNUCLEONDECAY}
++               ${ROOT_CORE}
++               ${ROOT_CINT} 
++               ${ROOT_RIO}
++               ${ROOT_NET}
++               ${ROOT_HIST} 
++               ${ROOT_GRAF}
++               ${ROOT_GRAF3D}
++               ${ROOT_GPAD}
++               ${ROOT_TREE}
++               ${ROOT_RINT}
++               ${ROOT_POSTSCRIPT}
++               ${ROOT_MATRIX}
++               ${ROOT_PHYSICS}
++               ${ROOT_MATHCORE}
++               ${ROOT_THREAD}
++               ${ROOT_EG}
++               ${ROOT_TREEPLAYER} 
++               ${ROOT_FFTW}
++               ${ROOT_REFLEX}
++               ${ROOT_GUI}
++           )
++
++add_library(NuReweightArt SHARED
++	NuReweight.h
++	NuReweight.cxx
++	)
++
++target_link_libraries(NuReweightArt 
++     SimulationBase NuReweight ${NURW_LIBS} )
++
++
++art_add_module(ReweightAna_module ReweightAna_module.cc)
++
++target_link_libraries(ReweightAna_module 
++     NuReweightArt SimulationBase NuReweight ${NURW_LIBS} )
++
++
++
++install(TARGETS
++     NuReweightArt
++     ReweightAna_module
++     EXPORT nutoolsLibraries
++     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++     COMPONENT Runtime 
++     )
++
++install(FILES NuReweight.h DESTINATION
++     ${CMAKE_INSTALL_INCLUDEDIR}/NuReweightArt COMPONENT Development)
++
++
+Index: NuReweight/art/CMakeLists.txt
+===================================================================
+--- NuReweight/art/CMakeLists.txt	(revision 643)
++++ NuReweight/art/CMakeLists.txt	(working copy)
+@@ -1,4 +1,8 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
+ 
++
+ set( NURW_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
+                ${ART_FRAMEWORK_SERVICES_OPTIONAL}
+ 	       ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+@@ -97,3 +101,5 @@
+ install_headers()
+ install_fhicl()
+ install_source()
++
++ENDIF()
+Index: NuReweight/CMakeLists.txt
+===================================================================
+--- NuReweight/CMakeLists.txt	(revision 643)
++++ NuReweight/CMakeLists.txt	(working copy)
+@@ -1,4 +1,8 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
+ 
++
+ ##cet_add_compiler_flags(CXX -DSETDIFFXSEC_1ARG )
+ 
+ art_make( LIBRARY_NAME NuReweight
+@@ -70,3 +74,5 @@
+ install_source()
+ 
+ add_subdirectory(art)
++
++ENDIF()
+Index: EventDisplayBase/altCMakeLists.cmake
+===================================================================
+--- EventDisplayBase/altCMakeLists.cmake	(revision 0)
++++ EventDisplayBase/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,69 @@
 +include(CetRootCint)
 +include(CetParseArgs)
 +
- include_directories ( ${CMAKE_CURRENT_SOURCE_DIR} )
- 
- set( PACKAGE EventDisplayBase )
-@@ -2,3 +5,5 @@
- FILE( GLOB src_files *.cxx )
-+FILE( GLOB inc_files *.h )
- 
++include_directories ( ${CMAKE_CURRENT_SOURCE_DIR} )
 +
- set( EVD_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
-@@ -41,15 +46,33 @@
- 	      ${ROOT_THREAD} )
- 
- cet_rootcint( ${PACKAGE} )
++set( PACKAGE EventDisplayBase )
++FILE( GLOB src_files *.cxx )
++FILE( GLOB inc_files *.h )
++
++
++set( EVD_LIBS ${ART_FRAMEWORK_SERVICES_REGISTRY}
++              ${ART_FRAMEWORK_CORE}
++	      ${ART_PERSISTENCY_COMMON}
++              ${ART_FRAMEWORK_IO_SOURCES}
++              ${ART_FRAMEWORK_IO_ROOT}
++              ${ART_FRAMEWORK_IO_ROOT_ROOTINPUT_SOURCE}
++              ${ART_FRAMEWORK_PRINCIPAL}
++              ${ART_PERSISTENCY_PROVENANCE}
++              ${ART_UTILITIES}
++              ${MF_MESSAGELOGGER}
++              ${MF_UTILITIES}
++              ${FHICLCPP}
++              ${CETLIB}
++	      ${ROOT_EVE}
++ 	      ${ROOT_EG}
++	      ${ROOT_GX11}
++	      ${ROOT_TREEPLAYER} 
++	      ${ROOT_GEOM}
++	      ${ROOT_GED} 
++	      ${ROOT_RGL} 
++	      ${ROOT_GUI}
++	      ${ROOT_CORE}
++	      ${ROOT_CINT} 
++	      ${ROOT_RIO}
++	      ${ROOT_NET}
++	      ${ROOT_HIST} 
++	      ${ROOT_GRAF}
++	      ${ROOT_GRAF3D}
++	      ${ROOT_GPAD}
++	      ${ROOT_TREE}
++	      ${ROOT_RINT}
++	      ${ROOT_POSTSCRIPT}
++	      ${ROOT_MATRIX}
++	      ${ROOT_PHYSICS}
++	      ${ROOT_MATHCORE}
++	      ${ROOT_THREAD} )
++
++cet_rootcint( ${PACKAGE} )
 +add_library(${PACKAGE} SHARED ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Cint.cc)
- 
--art_make_library( LIBRARY_NAME ${PACKAGE}
--        	  SOURCE ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Cint.cc
--        	  LIBRARIES SimulationBase ${EVD_LIBS} )
-+#art_make_library( LIBRARY_NAME ${PACKAGE}
-+#        	  SOURCE ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Cint.cc
-+#        	  LIBRARIES SimulationBase ${EVD_LIBS} )
- 
- set( EVD_SERVICE_LIBS ${PACKAGE} ${EVD_LIBS} )
--simple_plugin( EventDisplay service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
--simple_plugin( ScanOptions service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
-+#simple_plugin( EventDisplay service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
-+#simple_plugin( ScanOptions service ${EVD_SERVICE_LIBS} BASENAME_ONLY )
++
++set( EVD_SERVICE_LIBS ${PACKAGE} ${EVD_LIBS} )
++
 +art_add_service(EventDisplay_service EventDisplay_service.cc )
 +art_add_service(ScanOptions_service ScanOptions_service.cc )
 +target_link_libraries(EventDisplay_service ${EVD_SERVICE_LIBS})
 +target_link_libraries(ScanOptions_service ${EVD_SERVICE_LIBS})
- 
--install_headers()
--install_fhicl()
--install_source()
-+#install_headers()
-+#install_fhicl()
-+#install_source()
 +
 +install(TARGETS
 +     ${PACKAGE}
@@ -328,28 +608,47 @@ Index: EventDisplayBase/CMakeLists.txt
 +     )
 +
 +install(FILES ${inc_files} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PACKAGE} COMPONENT development)
-Index: NuBeamWeights/CMakeLists.txt
+Index: EventDisplayBase/CMakeLists.txt
 ===================================================================
---- NuBeamWeights/CMakeLists.txt	(revision 639)
-+++ NuBeamWeights/CMakeLists.txt	(working copy)
-@@ -1,5 +1,6 @@
+--- EventDisplayBase/CMakeLists.txt	(revision 643)
++++ EventDisplayBase/CMakeLists.txt	(working copy)
+@@ -1,3 +1,7 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
++
+ include_directories ( ${CMAKE_CURRENT_SOURCE_DIR} )
  
--art_make( LIBRARY_NAME NuBeamWeights
-+#art_make( LIBRARY_NAME NuBeamWeights
+ set( PACKAGE EventDisplayBase )
+@@ -53,3 +57,5 @@
+ install_headers()
+ install_fhicl()
+ install_source()
++
++ENDIF()
+Index: NuBeamWeights/altCMakeLists.cmake
+===================================================================
+--- NuBeamWeights/altCMakeLists.cmake	(revision 0)
++++ NuBeamWeights/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,39 @@
++
 +set(
- 	  LIB_LIBRARIES ${ROOT_CORE}
- 			${ROOT_CINT} 
- 			${ROOT_RIO}
-@@ -16,6 +17,27 @@
- 			${ROOT_MATHCORE}
- 			${ROOT_THREAD} )
- 
--install_headers()
--install_fhicl()
--install_source()
-+#install_headers()
-+#install_fhicl()
-+#install_source()
++	  LIB_LIBRARIES ${ROOT_CORE}
++			${ROOT_CINT} 
++			${ROOT_RIO}
++			${ROOT_NET}
++			${ROOT_HIST} 
++			${ROOT_GRAF}
++			${ROOT_GRAF3D}
++			${ROOT_GPAD}
++			${ROOT_TREE}
++			${ROOT_RINT}
++			${ROOT_POSTSCRIPT}
++			${ROOT_MATRIX}
++			${ROOT_PHYSICS}
++			${ROOT_MATHCORE}
++			${ROOT_THREAD} )
++
 +add_library(NuBeamWeights SHARED
 +     Conventions.h
 +     skzpReweight.h
@@ -371,69 +670,100 @@ Index: NuBeamWeights/CMakeLists.txt
 +  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/NuBeamWeights COMPONENT Development)
 +
 +
-Index: EventGeneratorBase/test/CMakeLists.txt
+Index: NuBeamWeights/CMakeLists.txt
 ===================================================================
---- EventGeneratorBase/test/CMakeLists.txt	(revision 639)
-+++ EventGeneratorBase/test/CMakeLists.txt	(working copy)
-@@ -1,5 +1,6 @@
+--- NuBeamWeights/CMakeLists.txt	(revision 643)
++++ NuBeamWeights/CMakeLists.txt	(working copy)
+@@ -1,4 +1,8 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
  
--art_make( EventGeneratorBasetest
-+#art_make( EventGeneratorBasetest
-+set(
-           MODULE_LIBRARIES SimulationBase  
- 	                   EventGeneratorBaseCRY 
- 			   EventGeneratorBaseGENIE
-@@ -19,18 +20,14 @@
-                         ${GCHARM}
-                         ${GCOH}
-                         ${GDFRC}
--                        ${GDIS}
-                         ${GCROSSSECTIONS}
--                        ${GDECAY}
-                         ${GELAS}
-                         ${GELFF}
-                         ${GHEP}
-                         ${GEVGCORE}
--                        ${GEVGMODULES}
-                         ${GEVGDRIVERS}
-                         ${GGIBUU}
-                         ${GHADRONTRANSP}
--                        ${GFRAGMENTATION}
-                         ${GINTERACTION}
-                         ${GLLEWELLYNSMITH}
-                         ${GMEC}
-@@ -39,15 +36,12 @@
-                         ${GNUE}
-                         ${GNTUPLE}
-                         ${GNUCLEAR}
--                        ${GNUMERICAL}
-                         ${GQPM}
-                         ${GPDG}
-                         ${GPDF}
-                         ${GQEL}
--                        ${GRES}
-                         ${GREGISTRY}
-                         ${GREINSEGHAL}
--                        ${GUTILS}
-                         ${GGEO}
-                         ${GFLUXDRIVERS}
-                         ${GMUELOSS}
-@@ -73,11 +67,37 @@
-                         ${ROOT_TREEPLAYER} 
-                         ${ROOT_FFTW}
-                         ${ROOT_REFLEX}
--                        ${ROOTSYS}/lib/libEGPythia6.so
-                         ${ROOT_GUI}
-  	                )
- 
--install_headers()
--install_fhicl()
--install_source()
--install(FILES README DESTINATION ${product}/${version}/source/${CURRENT_SUBDIR} )
-+#install_headers()
-+#install_fhicl()
-+#install_source()
-+#install(FILES README DESTINATION ${product}/${version}/source/${CURRENT_SUBDIR} )
++
+ art_make( LIBRARY_NAME NuBeamWeights
+ 	  LIB_LIBRARIES ${ROOT_CORE}
+ 			${ROOT_CINT} 
+@@ -19,3 +23,5 @@
+ install_headers()
+ install_fhicl()
+ install_source()
++
++ENDIF()
+Index: EventGeneratorBase/test/altCMakeLists.cmake
+===================================================================
+--- EventGeneratorBase/test/altCMakeLists.cmake	(revision 0)
++++ EventGeneratorBase/test/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,97 @@
++
++set(MODULE_LIBRARIES SimulationBase  
++               EventGeneratorBaseCRY 
++ 		     EventGeneratorBaseGENIE
++	          ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
++        		${MF_MESSAGELOGGER}
++        		${MF_UTILITIES}
++        		${FHICLCPP}
++        		${CETLIB}
++                        ${LOG4CPP}
++                        ${XML2}
++                        ${PYTHIA6}
++                        ${LHAPDF}
++                        ${GALGORITHM}
++                        ${GBARYONRESONANCE}
++                        ${GBASE}
++                        ${GBODEKYANG}
++                        ${GCHARM}
++                        ${GCOH}
++                        ${GDFRC}
++                        ${GCROSSSECTIONS}
++                        ${GELAS}
++                        ${GELFF}
++                        ${GHEP}
++                        ${GEVGCORE}
++                        ${GEVGDRIVERS}
++                        ${GGIBUU}
++                        ${GHADRONTRANSP}
++                        ${GINTERACTION}
++                        ${GLLEWELLYNSMITH}
++                        ${GMEC}
++                        ${GMESSENGER}
++                        ${GNUGAMMA}
++                        ${GNUE}
++                        ${GNTUPLE}
++                        ${GNUCLEAR}
++                        ${GQPM}
++                        ${GPDG}
++                        ${GPDF}
++                        ${GQEL}
++                        ${GREGISTRY}
++                        ${GREINSEGHAL}
++                        ${GGEO}
++                        ${GFLUXDRIVERS}
++                        ${GMUELOSS}
++                        ${GREWEIGHT}
++                        ${GNUCLEONDECAY}
++			         ${CRY}
++                        ${ROOT_CORE}
++                        ${ROOT_CINT} 
++                        ${ROOT_RIO}
++                        ${ROOT_NET}
++                        ${ROOT_HIST} 
++                        ${ROOT_GRAF}
++                        ${ROOT_GRAF3D}
++                        ${ROOT_GPAD}
++                        ${ROOT_TREE}
++                        ${ROOT_RINT}
++                        ${ROOT_POSTSCRIPT}
++                        ${ROOT_MATRIX}
++                        ${ROOT_PHYSICS}
++                        ${ROOT_MATHCORE}
++                        ${ROOT_THREAD}
++                        ${ROOT_EG}
++                        ${ROOT_TREEPLAYER} 
++                        ${ROOT_FFTW}
++                        ${ROOT_REFLEX}
++                        ${ROOT_GUI}
++ 	                )
++
 +
 +include_directories(
 +     ${ROOT_INCLUDE_DIRS}
@@ -461,64 +791,105 @@ Index: EventGeneratorBase/test/CMakeLists.txt
 +install(FILES evgentest.fcl DESTINATION job COMPONENT Runtime)
 +
 +install(FILES README DESTINATION source/EventGeneratorBase/test )
-Index: EventGeneratorBase/GENIE/CMakeLists.txt
+Index: EventGeneratorBase/test/CMakeLists.txt
 ===================================================================
---- EventGeneratorBase/GENIE/CMakeLists.txt	(revision 639)
-+++ EventGeneratorBase/GENIE/CMakeLists.txt	(working copy)
-@@ -1,5 +1,7 @@
+--- EventGeneratorBase/test/CMakeLists.txt	(revision 643)
++++ EventGeneratorBase/test/CMakeLists.txt	(working copy)
+@@ -1,4 +1,8 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
  
--art_make( LIBRARY_NAME EventGeneratorBaseGENIE
 +
-+#art_make( LIBRARY_NAME EventGeneratorBaseGENIE
-+set(
-           LIB_LIBRARIES SimulationBase
- 	                ${ART_UTILITIES}
-                		${MF_MESSAGELOGGER}
-@@ -17,18 +19,14 @@
- 			${GCHARM}
- 			${GCOH}
- 			${GDFRC}
--			${GDIS}
- 			${GCROSSSECTIONS}
--			${GDECAY}
- 			${GELAS}
- 			${GELFF}
- 			${GHEP}
- 			${GEVGCORE}
--			${GEVGMODULES}
- 			${GEVGDRIVERS}
- 			${GGIBUU}
- 			${GHADRONTRANSP}
--			${GFRAGMENTATION}
- 			${GINTERACTION}
- 			${GLLEWELLYNSMITH}
- 			${GMEC}
-@@ -37,15 +35,12 @@
- 			${GNUE}
- 			${GNTUPLE}
- 			${GNUCLEAR}
--			${GNUMERICAL}
- 			${GQPM}
- 			${GPDG}
- 			${GPDF}
- 			${GQEL}
--			${GRES}
- 			${GREGISTRY}
- 			${GREINSEGHAL}
--			${GUTILS}
- 			${GGEO}
- 			${GFLUXDRIVERS}
- 			${GMUELOSS}
-@@ -69,6 +64,43 @@
- 			${ROOT_MATHCORE}
- 			${ROOT_THREAD} )
- 
--install_headers()
--install_fhicl()
--install_source()
-+#install_headers()
-+#install_fhicl()
-+#install_source()
+ art_make( EventGeneratorBasetest
+           MODULE_LIBRARIES SimulationBase  
+ 	                   EventGeneratorBaseCRY 
+@@ -81,3 +85,5 @@
+ install_fhicl()
+ install_source()
+ install(FILES README DESTINATION ${product}/${version}/source/${CURRENT_SUBDIR} )
++
++ENDIF()
+Index: EventGeneratorBase/altCMakeLists.cmake
+===================================================================
+--- EventGeneratorBase/altCMakeLists.cmake	(revision 0)
++++ EventGeneratorBase/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,8 @@
++
++add_subdirectory(CRY)
++add_subdirectory(GENIE)
++add_subdirectory(test)
++
++install(FILES evgenbase.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/EventGeneratorBase 
++     COMPONENT Development )
++
+Index: EventGeneratorBase/GENIE/altCMakeLists.cmake
+===================================================================
+--- EventGeneratorBase/GENIE/altCMakeLists.cmake	(revision 0)
++++ EventGeneratorBase/GENIE/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,100 @@
++
++set( LIB_LIBRARIES SimulationBase
++	         ${ART_UTILITIES}
++              ${MF_MESSAGELOGGER}
++              ${MF_UTILITIES}
++              ${FHICLCPP}
++              ${CETLIB}
++			${XML2}
++			${LOG4CPP}
++			${PYTHIA6}
++			${LHAPDF}
++			${GALGORITHM}		
++			${GBARYONRESONANCE}
++			${GBASE}
++			${GBODEKYANG}
++			${GCHARM}
++			${GCOH}
++			${GDFRC}
++			${GCROSSSECTIONS}
++			${GELAS}
++			${GELFF}
++			${GHEP}
++			${GEVGCORE}
++			${GEVGDRIVERS}
++			${GGIBUU}
++			${GHADRONTRANSP}
++			${GINTERACTION}
++			${GLLEWELLYNSMITH}
++			${GMEC}
++			${GMESSENGER}
++			${GNUGAMMA}
++			${GNUE}
++			${GNTUPLE}
++			${GNUCLEAR}
++			${GQPM}
++			${GPDG}
++			${GPDF}
++			${GQEL}
++			${GREGISTRY}
++			${GREINSEGHAL}
++			${GGEO}
++			${GFLUXDRIVERS}
++			${GMUELOSS}
++			${GREWEIGHT}
++			${GNUCLEONDECAY}
++	          ${ROOT_GEOM}
++	          ${ROOT_GEOMPAINTER}
++ 			${ROOT_CORE}
++			${ROOT_CINT} 
++			${ROOT_RIO}
++			${ROOT_NET}
++			${ROOT_HIST} 
++			${ROOT_GRAF}
++			${ROOT_GRAF3D}
++			${ROOT_GPAD}
++			${ROOT_TREE}
++			${ROOT_RINT}
++			${ROOT_POSTSCRIPT}
++			${ROOT_MATRIX}
++			${ROOT_PHYSICS}
++			${ROOT_MATHCORE}
++			${ROOT_THREAD} )
 +
 +include_directories (
 +     ${ROOT_INCLUDE_DIRS}
@@ -556,28 +927,53 @@ Index: EventGeneratorBase/GENIE/CMakeLists.txt
 +     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 +     COMPONENT Runtime
 +     )
-Index: EventGeneratorBase/CRY/CMakeLists.txt
++
+Index: EventGeneratorBase/GENIE/CMakeLists.txt
 ===================================================================
---- EventGeneratorBase/CRY/CMakeLists.txt	(revision 639)
-+++ EventGeneratorBase/CRY/CMakeLists.txt	(working copy)
-@@ -1,5 +1,6 @@
+--- EventGeneratorBase/GENIE/CMakeLists.txt	(revision 643)
++++ EventGeneratorBase/GENIE/CMakeLists.txt	(working copy)
+@@ -1,4 +1,8 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
  
--art_make( LIBRARY_NAME EventGeneratorBaseCRY
-+#art_make( LIBRARY_NAME EventGeneratorBaseCRY
-+set(
++
+ art_make( LIBRARY_NAME EventGeneratorBaseGENIE
            LIB_LIBRARIES SimulationBase
- 	                ${CRY}
- 	                ${CETLIB}
-@@ -22,6 +23,42 @@
- 			${ROOT_THREAD} )
- 
- 
--install_headers()
--install_fhicl()
--install_source()
-+#install_headers()
-+#install_fhicl()
-+#install_source()
+ 	                ${ART_UTILITIES}
+@@ -72,3 +76,5 @@
+ install_headers()
+ install_fhicl()
+ install_source()
++
++ENDIF()
+Index: EventGeneratorBase/CRY/altCMakeLists.cmake
+===================================================================
+--- EventGeneratorBase/CRY/altCMakeLists.cmake	(revision 0)
++++ EventGeneratorBase/CRY/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,58 @@
++
++set( LIB_LIBRARIES SimulationBase
++	          ${CRY}
++	          ${CETLIB}
++	          ${ROOT_GEOM}
++	          ${ROOT_GEOMPAINTER}
++ 			${ROOT_CORE}
++			${ROOT_CINT} 
++			${ROOT_RIO}
++			${ROOT_NET}
++			${ROOT_HIST} 
++			${ROOT_GRAF}
++			${ROOT_GRAF3D}
++			${ROOT_GPAD}
++			${ROOT_TREE}
++			${ROOT_RINT}
++			${ROOT_POSTSCRIPT}
++			${ROOT_MATRIX}
++			${ROOT_PHYSICS}
++			${ROOT_MATHCORE}
++			${ROOT_THREAD} )
++
 +
 +include_directories(
 +     ${ROOT_INCLUDE_DIRS}
@@ -614,46 +1010,313 @@ Index: EventGeneratorBase/CRY/CMakeLists.txt
 +     COMPONENT Runtime
 +     )
 +
+Index: EventGeneratorBase/CRY/CMakeLists.txt
+===================================================================
+--- EventGeneratorBase/CRY/CMakeLists.txt	(revision 643)
++++ EventGeneratorBase/CRY/CMakeLists.txt	(working copy)
+@@ -1,4 +1,8 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
+ 
++
+ art_make( LIBRARY_NAME EventGeneratorBaseCRY
+           LIB_LIBRARIES SimulationBase
+ 	                ${CRY}
+@@ -25,3 +29,5 @@
+ install_headers()
+ install_fhicl()
+ install_source()
++
++ENDIF()
 Index: EventGeneratorBase/CMakeLists.txt
 ===================================================================
---- EventGeneratorBase/CMakeLists.txt	(revision 639)
+--- EventGeneratorBase/CMakeLists.txt	(revision 643)
 +++ EventGeneratorBase/CMakeLists.txt	(working copy)
-@@ -3,6 +3,10 @@
+@@ -1,4 +1,8 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
+ 
++
+ add_subdirectory(CRY)
  add_subdirectory(GENIE)
  add_subdirectory(test)
-  
--install_headers()
--install_fhicl()
--install_source()
-+#install_headers()
-+#install_fhicl()
-+#install_source()
+@@ -6,3 +10,5 @@
+ install_headers()
+ install_fhicl()
+ install_source()
 +
-+install(FILES evgenbase.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/EventGeneratorBase 
-+     COMPONENT Development )
-+
-Index: G4Base/CMakeLists.txt
++ENDIF()
+Index: dk2nu/altCMakeLists.cmake
 ===================================================================
---- G4Base/CMakeLists.txt	(revision 639)
-+++ G4Base/CMakeLists.txt	(working copy)
-@@ -1,5 +1,6 @@
- 
--art_make( LIBRARY_NAME G4Base
-+#art_make( LIBRARY_NAME G4Base
+--- dk2nu/altCMakeLists.cmake	(revision 0)
++++ dk2nu/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,232 @@
++#
++# source /nusoft/app/externals/setup
++# setup cmake
++# setup genie  v2_8_0a   -q debug:e4
++# setup root   v5_34_05  -q debug:e4
++#
++# cd /nova/app/users/$USER
++#
++# mkdir dk2nu-build
++# cd    dk2nu-build
++#
++# cmake [ -DWITH_GENIE=OFF ] ../dk2nu # or whatever path
++#
++# Required environment variables:
++#    ROOTSYS    e.g. /nusoft/app/externals/root/v5_34_05/Linux64bit+2.6-2.5-e2-debug
++# Optional
++#    GENIE
++#      if GENIE requires  $LIBXML2_INC and $LOG4CPP_INC
++#
++#----------------------------------------------------------------------------
++# Setup the project
++#
++cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
++project(dk2nu)
++set(CMAKE_BUILD_TYPE Debug)
++set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
++set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
++
++#----------------------------------------------------------------------------
++# By default attempt to build GENIE flux driver
++# You can set WITH_GENIE to OFF via the command line or ccmake/cmake-gui
++# to build only the base class library
++#
++option(WITH_GENIE "Build GENIE flux driver" ON)
++option(COPY_AUX "install etc, convert, snippets subdirectories" ON)
++
++set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake
++                      $ENV{ROOTSYS}/cmake/modules
++                      $ENV{ROOTSYS}/../source/root/cmake/modules
++                      $ENV{ROOTSYS}/etc/cmake 
++                      ${CMAKE_MODULE_PATH})
++
++#MESSAGE("CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
++#MESSAGE(" ")
++
++find_package(ROOT REQUIRED)
++
++set(INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/..
++                        ${PROJECT_SOURCE_DIR}
++                        ${PROJECT_SOURCE_DIR}/tree
++                        ${PROJECT_SOURCE_DIR}/genie
++                        ${ROOT_INCLUDE_DIR}
++                        / ) # add abs path for find_file() in FindROOT.cmake
++
++set(LINK_DIRECTORIES ${ROOT_LIBRARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/lib )
++#MESSAGE("CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}")
++
++if(WITH_GENIE)
++  set(GENIE $ENV{GENIE})
++  MESSAGE("-- WITH_GENIE was true")
++  set(INCLUDE_DIRECTORIES ${INCLUDE_DIRECTORIES} 
++                          ${PROJECT_SOURCE_DIR}/genie
++                          $ENV{LIBXML2_INC}
++                          $ENV{LOG4CPP_INC}
++                          ${GENIE}/src)
++  set(LINK_DIRECTORIES ${LINK_DIRECTORIES} ${GENIE}/lib)
++  #MESSAGE("--DK2NU- INCLUDE_DIRECTORIES=${INCLUDE_DIRECTORIES}")
++endif()
++
++include_directories( ${INCLUDE_DIRECTORIES} )
++link_directories( ${LINK_DIRECTORIES} )
++
++#----------------------------------------------------------------------------
++
++include(Darwin)
++
++#include(AltGenDict2)
++#include(RootNewMacros)
++
++# $ROOTSYS/etc/cmake/FindROOT.cmake
++#    needs CMAKE_PARSE_ARGUMENTS defined to do ROOT_GENERATE_DICTIONARY
++# where should one find _that_ 
++
++include(CMakeParseArguments)
++
++#MESSAGE("--DK2NU- PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}")
++#MESSAGE("--DK2NU- ROOT_LIBRARIES=${ROOT_LIBRARIES}")
++#MESSAGE("--DK2NU-")
++
++#----------------------------------------------------------------------------
++#
++# libdk2nuTree.so
++#
++#MESSAGE("--DK2NU- dk2nuTree section begin")
++file(GLOB dk2nuTree_SRCS ${PROJECT_SOURCE_DIR}/tree/*.cc 
++                         ${PROJECT_SOURCE_DIR}/tree/*.cxx)
++file(GLOB dk2nuTree_HDRS ${PROJECT_SOURCE_DIR}/tree/*.h)
++list(REMOVE_ITEM dk2nuTree_HDRS ${PROJECT_SOURCE_DIR}/tree/LinkDef.h)
++
++#MESSAGE("dk2nuTree_SRCS=${dk2nuTree_SRCS}")
++#MESSAGE(" ")
++#MESSAGE("dk2nuTree_HDRS=${dk2nuTree_HDRS}")
++#MESSAGE(" ")
++
++set(dk2nuTree_LINKDEF ${PROJECT_SOURCE_DIR}/tree/LinkDef.h)
++# do not include ".cxx" here!!!!
++set(dk2nuTree_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/dk2nuTreeDict)
++
++#MESSAGE("--DK2NU- about to ROOT_GENERATE_DICTIONARY ${dk2nuTree_DICTIONARY}")
++#MESSAGE("--rwh- ROOT_GENERATE_DICTIONARY ${dk2nuTree_DICTIONARY} ${dk2nuTree_HDRS} ${dk2nuTree_LINKDEF} ")
++ROOT_GENERATE_DICTIONARY("${dk2nuTree_DICTIONARY}" "${dk2nuTree_HDRS}" LINKDEF "${dk2nuTree_LINKDEF}" )
++
++# add dictionary to list of source files
++SET(dk2nuTree_SRCS ${dk2nuTree_SRCS} ${dk2nuTree_DICTIONARY})
++
++add_library(dk2nuTree SHARED ${dk2nuTree_SRCS})
++target_link_libraries(dk2nuTree ${ROOT_LIBRARIES} -lPhysics -lMatrix )
++
++#MESSAGE("--DK2NU- dk2nuTree section done")
++#MESSAGE(" ")
++
++#----------------------------------------------------------------------------
++#
++# libdk2nuGenie.so
++#
++if(WITH_GENIE)
++
++#MESSAGE("--DK2NU- dk2nuTree section begin")
++file(GLOB dk2nuGenie_SRCS ${PROJECT_SOURCE_DIR}/genie/*.cc 
++                          ${PROJECT_SOURCE_DIR}/genie/*.cxx)
++file(GLOB dk2nuGenie_HDRS ${PROJECT_SOURCE_DIR}/genie/*.h)
++list(REMOVE_ITEM dk2nuGenie_HDRS ${PROJECT_SOURCE_DIR}/genie/LinkDef.h)
++
++#MESSAGE("dk2nuGenie_SRCS=${dk2nuGenie_SRCS}")
++#MESSAGE(" ")
++#MESSAGE("dk2nuGenie_HDRS=${dk2nuGenie_HDRS}")
++#MESSAGE(" ")
++
++set(dk2nuGenie_LINKDEF ${PROJECT_SOURCE_DIR}/genie/LinkDef.h)
++# do not include ".cxx" here!!!!
++set(dk2nuGenie_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/dk2nuGenieDict)
++
++#MESSAGE("--DK2NU- about to ROOT_GENERATE_DICTIONARY ${dk2nuGenie_DICTIONARY}")
++ROOT_GENERATE_DICTIONARY("${dk2nuGenie_DICTIONARY}" "${dk2nuGenie_HDRS}" LINKDEF "${dk2nuGenie_LINKDEF}" )
++
++# add dictionary to list of source files
++SET(dk2nuGenie_SRCS ${dk2nuGenie_SRCS} ${dk2nuGenie_DICTIONARY})
++
++# don't use -l for dk2nuTree if we want dk2nuGenie to depend on dk2nuTree
++# before dk2nuTree is built
++add_library(dk2nuGenie SHARED ${dk2nuGenie_SRCS})
++target_link_libraries(dk2nuGenie ${ROOT_LIBRARIES} -lPhysics -lMatrix dk2nuTree )
++
++#set_property(TARGET dk2nuGenie PROPERTY DEPENDS dk2nuTree)
++#add_custom_command(OUTPUT dk2nuGenie COMMAND echo hey there DEPENDS dk2nuTree)
++
++#MESSAGE("--DK2NU- dk2nuGenie section done")
++
++endif()
++
++#----------------------------------------------------------------------------
++# Copy all scripts to the build directory, i.e. the directory in which we
++# build B1. This is so that we can run the executable directly because it
++# relies on these scripts being in the current working directory.
++#
++##set(EXAMPLEG4NUMI_SCRIPTS
++## me000z200i3.mac
++##  )
++##
++##foreach(_script ${EXAMPLEG4NUMI_SCRIPTS})
++##  configure_file(
++##    ${PROJECT_SOURCE_DIR}/${_script}
++##    ${PROJECT_BINARY_DIR}/${_script}
++##    COPYONLY
++##    )
++##endforeach()
++
++#----------------------------------------------------------------------------
++# For internal Geant4 use - but has no effect if you build this
++# example standalone
++#
++##add_custom_target(G4NUMI DEPENDS g4numi)
++
++#----------------------------------------------------------------------------
++# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
++#
++install(TARGETS dk2nuTree DESTINATION lib)
++if(WITH_GENIE)
++  install(TARGETS dk2nuGenie DESTINATION lib)
++endif()
++#--------------------
++# Install the headers
++install(FILES ${dk2nuTree_HDRS} DESTINATION include/dk2nu/tree)
++if(WITH_GENIE)
++  install(FILES ${dk2nuGenie_HDRS} DESTINATION include/dk2nu/genie)
++endif()
++# Install support files and scripts
++if(COPY_AUX)
++#  install(FILES README DESTINATION doc RENAME dk2nu.README)
++  install(FILES       etc/locations.txt
++                      etc/NuMIlocations.txt
++                      etc/LBNElocations.txt 
++          DESTINATION etc)
++  install(FILES       scripts/load_dk2nu.C
++          DESTINATION scripts)
++  install(FILES       scripts/convert/common_convert.C
++          DESTINATION scripts/convert)
++  install(FILES       scripts/convert/aux/mkgclasses3.sh 
++          DESTINATION scripts/convert/aux)
++  install(FILES       scripts/convert/g3numi/g3numi.C 
++                      scripts/convert/g3numi/g3numi.h 
++          DESTINATION scripts/convert/g3numi)
++  install(FILES       scripts/convert/g4numi/g4numi.C 
++                      scripts/convert/g4numi/g4numi.h 
++          DESTINATION scripts/convert/g4numi)
++  install(FILES       scripts/convert/g4minerva/g4minerva.C 
++                      scripts/convert/g4minerva/g4minerva.h 
++                      scripts/convert/g4minerva/convert_g4minerva.C
++          DESTINATION scripts/convert/g4minerva)
++  install(FILES       scripts/convert/flugg/flugg.C 
++                      scripts/convert/flugg/flugg.h 
++                      scripts/convert/flugg/convert_flugg.C
++          DESTINATION scripts/convert/flugg)
++  install(FILES       scripts/convert/g4lbne/g4lbne.C 
++                      scripts/convert/g4lbne/g4lbne.h 
++                      scripts/convert/g4lbne/convert_g4lbne.C
++          DESTINATION scripts/convert/g4lbne)
++  install(FILES       scripts/examples/test_read_locations.C
++                      scripts/examples/test_fill_dk2nu.C
++                      scripts/examples/test_read_dk2nu.C
++          DESTINATION scripts/examples)
++endif()
+Index: G4Base/altCMakeLists.cmake
+===================================================================
+--- G4Base/altCMakeLists.cmake	(revision 0)
++++ G4Base/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,82 @@
++
 +set(
-           LIB_LIBRARIES SimulationBase
- 	                MagneticField_service
- 	                ${G4FR}
-@@ -26,6 +27,61 @@
- 	                ${CLHEP}
- 			)
- 
--install_headers()
--install_fhicl()
--install_source()
-+#install_headers()
-+#install_fhicl()
-+#install_source()
++          LIB_LIBRARIES SimulationBase
++	                MagneticField_service
++	                ${G4FR}
++	                ${G4GMOCREN}
++	                ${G4RAYTRACER}
++	                ${G4TREE}
++	                ${G4VRML}
++	                ${G4EVENT}
++	                ${G4GEOMETRY}
++	                ${G4GLOBAL}
++	                ${G4INTERCOMS}
++	                ${G4MATERIALS}
++	                ${G4MODELING}
++	                ${G4PARTICLES}
++	                ${G4PERSISTENCY}
++	                ${G4PHYSICSLISTS}
++	                ${G4PROCESSES}
++	                ${G4READOUT}
++	                ${G4RUN}
++	                ${G4TRACKING}
++	                ${G4VISHEPREP}
++	                ${G4VIS_MANAGEMENT}
++			${XERCESC}
++	                ${CLHEP}
++			)
 +
 +include_directories(
 +     ${Geant4_INCLUDE_DIR}/..
@@ -709,24 +1372,54 @@ Index: G4Base/CMakeLists.txt
 +     ${CMAKE_INSTALL_INCLUDEDIR}/G4Base COMPONENT Development)
 +
 +
+Index: G4Base/CMakeLists.txt
+===================================================================
+--- G4Base/CMakeLists.txt	(revision 643)
++++ G4Base/CMakeLists.txt	(working copy)
+@@ -1,4 +1,8 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
+ 
++
+ art_make( LIBRARY_NAME G4Base
+           LIB_LIBRARIES SimulationBase
+ 	                MagneticField_service
+@@ -29,3 +33,5 @@
+ install_headers()
+ install_fhicl()
+ install_source()
++
++ENDIF()
+Index: ups/altCMakeLists.cmake
+===================================================================
+--- ups/altCMakeLists.cmake	(revision 0)
++++ ups/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,2 @@
++# intentionally left blank
++
 Index: ups/CMakeLists.txt
 ===================================================================
---- ups/CMakeLists.txt	(revision 639)
+--- ups/CMakeLists.txt	(revision 643)
 +++ ups/CMakeLists.txt	(working copy)
-@@ -1,6 +1,6 @@
+@@ -1,6 +1,12 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
  
++
  # create package configuration and version files
  
--process_ups_files()
-+#process_ups_files()
+ process_ups_files()
  
--cet_cmake_config()
-+#cet_cmake_config()
+ cet_cmake_config()
++
++ENDIF()
 Index: Modules/CetParseArgs.cmake
 ===================================================================
 --- Modules/CetParseArgs.cmake	(revision 0)
 +++ Modules/CetParseArgs.cmake	(revision 0)
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,70 @@
 +########################################################################
 +# cet_parse_args
 +#
@@ -762,11 +1455,159 @@ Index: Modules/CetParseArgs.cmake
 +  ENDFOREACH(arg)
 +  SET(${prefix}_${current_arg_name} ${current_arg_list})
 +ENDMACRO(cet_parse_args)
++########################################################################
++# cet_parse_args
++#
++# From PARSE_ARGUMENTS (http://www.cmake.org/Wiki/CMakeMacroParseArguments).
++########################################################################
++MACRO(cet_parse_args prefix arg_names option_names)
++  SET(DEFAULT_ARGS)
++  FOREACH(arg_name ${arg_names})    
++    SET(${prefix}_${arg_name})
++  ENDFOREACH(arg_name)
++  FOREACH(option ${option_names})
++    SET(${prefix}_${option} FALSE)
++  ENDFOREACH(option)
++
++  SET(current_arg_name DEFAULT_ARGS)
++  SET(current_arg_list)
++  FOREACH(arg ${ARGN})            
++    SET(larg_names ${arg_names})    
++    LIST(FIND larg_names "${arg}" is_arg_name)                   
++    IF (is_arg_name GREATER -1)
++      SET(${prefix}_${current_arg_name} ${current_arg_list})
++      SET(current_arg_name ${arg})
++      SET(current_arg_list)
++    ELSE (is_arg_name GREATER -1)
++      SET(loption_names ${option_names})    
++      LIST(FIND loption_names "${arg}" is_option)            
++      IF (is_option GREATER -1)
++	     SET(${prefix}_${arg} TRUE)
++      ELSE (is_option GREATER -1)
++	     SET(current_arg_list ${current_arg_list} ${arg})
++      ENDIF (is_option GREATER -1)
++    ENDIF (is_arg_name GREATER -1)
++  ENDFOREACH(arg)
++  SET(${prefix}_${current_arg_name} ${current_arg_list})
++ENDMACRO(cet_parse_args)
+Index: Modules/FindSQLite3.cmake
+===================================================================
+--- Modules/FindSQLite3.cmake	(revision 0)
++++ Modules/FindSQLite3.cmake	(revision 0)
+@@ -0,0 +1,82 @@
++# - Try to find SQLite3
++# Once done this will define
++#
++#  SQLite3_FOUND - system has Sqlite
++#  SQLite3_INCLUDE_DIRS - the Sqlite include directory
++#  SQLite3_LIBRARIES - Link these to use Sqlite
++#  SQLite3_DEFINITIONS - Compiler switches required for using Sqlite
++#
++# Redistribution and use is allowed according to the terms of the BSD license.
++# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
++#
++
++# Copyright (c) 2014, Ben Morgan, <Ben.Morgan@warwick.ac.uk>
++# Copyright (c) 2008, Gilles Caulier, <caulier.gilles@gmail.com>
++#
++# Redistribution and use is allowed according to the terms of the BSD license.
++# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
++
++if(SQLite3_INCLUDE_DIR AND SQLite3_LIBRARY)
++   # in cache already
++   SET(SQLite3_FIND_QUIETLY TRUE)
++endif()
++
++# Optionally use pkg-config to get the directories and then use these values
++# in the FIND_PATH() and FIND_LIBRARY() calls
++if(NOT WIN32)
++  find_package(PkgConfig)
++  pkg_check_modules(PC_SQLite3 QUIET sqlite3)
++  set(SQLite3_DEFINITIONS ${PC_SQLite3_CFLAGS_OTHER})
++endif()
++
++# - Find header
++find_path(SQLite3_INCLUDE_DIR NAMES sqlite3.h
++  PATHS
++  ${PC_SQLite3_INCLUDEDIR}
++  ${PC_SQLite3_INCLUDE_DIRS}
++)
++
++# - Extract version
++if(SQLite3_INCLUDE_DIR AND EXISTS "${SQLite3_INCLUDE_DIR}/sqlite3.h")
++  file(STRINGS "${SQLite3_INCLUDE_DIR}/sqlite3.h" SQLite3_H REGEX "^#define SQLITE_VERSION *\"[^\"]*\"$")
++
++  string(REGEX REPLACE "^.*SQLITE_VERSION *\"([0-9]+).*$" "\\1" SQLite3_VERSION_MAJOR "${SQLite3_H}")
++  string(REGEX REPLACE "^.*SQLITE_VERSION *\"[0-9]+\\.([0-9]+).*$" "\\1" SQLite3_VERSION_MINOR  "${SQLite3_H}")
++  string(REGEX REPLACE "^.*SQLITE_VERSION *\"[0-9]+\\.[0-9]+\\.([0-9]+).*$" "\\1" SQLite3_VERSION_PATCH "${SQLite3_H}")
++  set(SQLite3_VERSION_STRING "${SQLite3_VERSION_MAJOR}.${SQLite3_VERSION_MINOR}.${SQLite3_VERSION_PATCH}")
++
++  # only append a TWEAK version if it exists:
++  set(SQLite3_VERSION_TWEAK "")
++  if( "${SQLite3_H}" MATCHES "^.*SQLITE_VERSION *\"[0-9]+\\.[0-9]+\\.[0-9]+\\.([0-9]+).*$")
++    set(SQLite3_VERSION_TWEAK "${CMAKE_MATCH_1}")
++    set(SQLite3_VERSION_STRING "${SQLite3_VERSION_STRING}.${SQLite3_VERSION_TWEAK}")
++  endif()
++
++  set(SQLite3_MAJOR_VERSION "${SQLite3_VERSION_MAJOR}")
++  set(SQLite3_MINOR_VERSION "${SQLite3_VERSION_MINOR}")
++  set(SQLite3_PATCH_VERSION "${SQLite3_VERSION_PATCH}")
++endif()
++
++
++find_library(SQLite3_LIBRARY NAMES sqlite3
++  PATHS
++  ${PC_SQLite3_LIBDIR}
++  ${PC_SQLite3_LIBRARY_DIRS}
++)
++
++include(FindPackageHandleStandardArgs)
++find_package_handle_standard_args(SQLite3
++  FOUND_VAR SQLite3_FOUND
++  REQUIRED_VARS SQLite3_INCLUDE_DIR SQLite3_LIBRARY
++  VERSION_VAR SQLite3_VERSION_STRING
++  )
++
++# show the SQLite_INCLUDE_DIR and SQLite_LIBRARIES variables only in the advanced view
++mark_as_advanced(SQLite3_INCLUDE_DIR SQLite3_LIBRARY)
++
++# Final setup
++if(SQLite3_FOUND)
++  set(SQLite3_INCLUDE_DIRS ${SQLite3_INCLUDE_DIR})
++  set(SQLite3_LIBRARIES ${SQLite3_LIBRARY})
++endif()
++
 Index: Modules/ArtCPack.cmake
 ===================================================================
 --- Modules/ArtCPack.cmake	(revision 0)
 +++ Modules/ArtCPack.cmake	(revision 0)
-@@ -0,0 +1,26 @@
+@@ -0,0 +1,52 @@
++# - Cpackaging file for Art
++
++#-----------------------------------------------------------------------
++# Generic settings
++#
++# - Package name is project name...
++# - Versioning
++set(CPACK_PACKAGE_VERSION_MAJOR ${${PROJECT_NAME}_VERSION_MAJOR})
++set(CPACK_PACKAGE_VERSION_MINOR ${${PROJECT_NAME}_VERSION_MINOR})
++set(CPACK_PACKAGE_VERSION_PATCH ${${PROJECT_NAME}_VERSION_PATCH})
++
++#-----------------------------------------------------------------------
++# Specifics for Source Package
++#
++set(CPACK_SOURCE_GENERATOR "TBZ2;ZIP")
++set(CPACK_SOURCE_IGNORE_FILES
++  "${PROJECT_BINARY_DIR}"
++  "/\\\\.git"
++  "\\\\.swp$"
++  )
++
++#-----------------------------------------------------------------------
++# Must allways include Cpack module **last**
++#
++include(CPack)
++
 +# - Cpackaging file for Art
 +
 +#-----------------------------------------------------------------------
@@ -797,7 +1638,71 @@ Index: Modules/CetRootCint.cmake
 ===================================================================
 --- Modules/CetRootCint.cmake	(revision 0)
 +++ Modules/CetRootCint.cmake	(revision 0)
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,128 @@
++#
++# cet_rootcint( <output_name> [NO_INSTALL] ) 
++# runs rootcint against files in CMAKE_CURRENT_SOURCE_DIR and puts the result in CMAKE_CURRENT_BINARY_DIR
++
++macro( cet_rootcint rc_output_name )
++
++  set(cet_rootcint_usage "USAGE: cet_rootcint( <package name> [NO_INSTALL] )")
++  cet_parse_args( RC "" "NO_INSTALL" ${ARGN})
++
++  # there are no default arguments
++  if( RC_DEFAULT_ARGS )
++     message(FATAL_ERROR  "cet_rootcint: Incorrect arguments. ${ARGV} \n ${cet_rootcint_usage}")
++  endif()
++  ##message(STATUS "cet_rootcint debug: cet_rootcint called with ${rc_output_name}")
++  ##get_filename_component(pkgname ${CMAKE_CURRENT_SOURCE_DIR} NAME )
++  ##message(STATUS "cet_rootcint debug: pkgname is ${pkgname} - ${PACKAGE} - ${package}")
++  set( SRT_FLAGS -D_POSIX_SOURCE
++		 -D_SVID_SOURCE
++		 -D_BSD_SOURCE
++		 -D_POSIX_C_SOURCE=2
++		 -DDEFECT_NO_IOSTREAM_NAMESPACES
++		 -DDEFECT_NO_JZEXT
++		 -DDEFECT_NO_INTHEX
++		 -DDEFECT_NO_INTHOLLERITH
++		 -DDEFECT_NO_READONLY
++		 -DDEFECT_NO_DIRECT_FIXED
++		 -DDEFECT_NO_STRUCTURE )
++
++  # generate the list of headers to be parsed by cint
++  FILE(GLOB CINT_CXX *.cxx )
++  foreach( file ${CINT_CXX} )
++     STRING( REGEX REPLACE ".cxx" ".h" header ${file} )
++     get_filename_component( cint_file ${file} NAME_WE )
++     set( CINT_HEADER_LIST ${cint_file}.h ${CINT_HEADER_LIST} )
++     set( CINT_DEPENDS ${header} ${CINT_DEPENDS} )
++  endforeach( file )
++  ##message(STATUS "cint header list is now ${CINT_HEADER_LIST}" )
++
++  ##message(STATUS "cet_rootcint: running ${ROOTCINT} and using headers in ${ROOTSYS}/include")
++  get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
++  foreach( dir ${inc_dirs} )
++     set( CINT_INCS -I${dir} ${CINT_INCS} )
++  endforeach( dir )
++  ##message(STATUS "cet_rootcint: include_directories ${CINT_INCS}")
++
++  add_custom_command(
++     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.cc
++            ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.h
++     COMMAND ${ROOTCINT} -f ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.cc
++                	 -c -p ${SRT_FLAGS}
++			 -I. -I${CMAKE_SOURCE_DIR} ${CINT_INCS}
++			 -DUSE_ROOT -I${ROOTSYS}/include
++			 ${CINT_HEADER_LIST} LinkDef.h || { rm -f ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.cc\; /bin/false\; }
++     DEPENDS ${CINT_DEPENDS} LinkDef.h
++     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
++  )
++
++  # set variable for install_source
++  if( NOT RC_NO_INSTALL )
++    set(cet_generated_code ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.cc
++                	   ${CMAKE_CURRENT_BINARY_DIR}/${rc_output_name}Cint.h )
++  endif( NOT RC_NO_INSTALL )
++
++endmacro( cet_rootcint )
 +#
 +# cet_rootcint( <output_name> [NO_INSTALL] ) 
 +# runs rootcint against files in CMAKE_CURRENT_SOURCE_DIR and puts the result in CMAKE_CURRENT_BINARY_DIR
@@ -866,7 +1771,7 @@ Index: Modules/nutoolsConfig.cmake.in
 ===================================================================
 --- Modules/nutoolsConfig.cmake.in	(revision 0)
 +++ Modules/nutoolsConfig.cmake.in	(revision 0)
-@@ -0,0 +1,15 @@
+@@ -0,0 +1,30 @@
 +# - nutools CMake package configuration file
 +# Minimal for now
 +# - API/ABI details
@@ -882,26 +1787,26 @@ Index: Modules/nutoolsConfig.cmake.in
 +
 +list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_LIST_DIR}")
 +
-Index: MagneticField/CMakeLists.txt
-===================================================================
---- MagneticField/CMakeLists.txt	(revision 639)
-+++ MagneticField/CMakeLists.txt	(working copy)
-@@ -1,8 +1,32 @@
- 
--simple_plugin( MagneticField service
--                        ${CLHEP}
--                        BASENAME_ONLY )
-+#simple_plugin( MagneticField service
-+#                        ${CLHEP}
-+#                        BASENAME_ONLY )
- 
--install_headers()
--install_fhicl()
--install_source()
-+#install_headers()
-+#install_fhicl()
-+#install_source()
++# - nutools CMake package configuration file
++# Minimal for now
++# - API/ABI details
++set(nutools_VERSION @nutools_VERSION@)
++@PACKAGE_INIT@
++set_and_check(nutools_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
++set_and_check(nutools_LIBDIR "@PACKAGE_CMAKE_INSTALL_LIBDIR@")
++# - Third-party details/refinds
++# - Import targets
++set(nutools_IMPORT_NAMESPACE "nutools::")
 +
++include("${CMAKE_CURRENT_LIST_DIR}/nutoolsLibraries.cmake")
++
++list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_LIST_DIR}")
++
+Index: MagneticField/altCMakeLists.cmake
+===================================================================
+--- MagneticField/altCMakeLists.cmake	(revision 0)
++++ MagneticField/altCMakeLists.cmake	(revision 0)
+@@ -0,0 +1,23 @@
 +
 +include_directories(${Geant4_INCLUDE_DIR}/..)
 +
@@ -925,327 +1830,40 @@ Index: MagneticField/CMakeLists.txt
 +
 +install(FILES magfield.fcl DESTINATION job COMPONENT Runtime)
 +
+Index: MagneticField/CMakeLists.txt
+===================================================================
+--- MagneticField/CMakeLists.txt	(revision 643)
++++ MagneticField/CMakeLists.txt	(working copy)
+@@ -1,4 +1,8 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
+ 
++
+ simple_plugin( MagneticField service
+                         ${CLHEP}
+                         BASENAME_ONLY )
+@@ -6,3 +10,5 @@
+ install_headers()
+ install_fhicl()
+ install_source()
++
++ENDIF()
 Index: CMakeLists.txt
 ===================================================================
---- CMakeLists.txt	(revision 639)
+--- CMakeLists.txt	(revision 643)
 +++ CMakeLists.txt	(working copy)
-@@ -15,135 +15,176 @@
- 
- 
- # use cmake 2.8 or later
--cmake_minimum_required (VERSION 2.8)
-+#cmake_minimum_required (VERSION 2.8)
- 
- # cetbuildtools contains our cmake modules
--SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
--IF (NOT CETBUILDTOOLS_VERSION)
--    MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
--ENDIF()
-+#SET ( CETBUILDTOOLS_VERSION ${CETBUILDTOOLS_VERSION} )
-+#IF (NOT CETBUILDTOOLS_VERSION)
-+#    MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
-+#ENDIF()
- 
--set(CMAKE_MODULE_PATH $ENV{ART_DIR}/Modules
--		      $ENV{CETBUILDTOOLS_DIR}/Modules
--		      ${CMAKE_MODULE_PATH})
-+#set(CMAKE_MODULE_PATH ${ART_DIR}/Modules
-+#		      ${CETBUILDTOOLS_DIR}/Modules
-+#		      ${CMAKE_MODULE_PATH})
- 
--include(CetCMakeEnv)
--cet_cmake_env()
-+#nclude(CetCMakeEnv)
-+#cet_cmake_env()
- 
- # -D_GLIBCXX_USE_NANOSLEEP is needed to make std::this_thread::sleep_for available.
--cet_set_compiler_flags(DIAGS CAUTIOUS WERROR 
--                       NO_UNDEFINED
--                       EXTRA_FLAGS -pedantic 
--                       EXTRA_CXX_FLAGS -D_GLIBCXX_USE_NANOSLEEP 
--                                       -Wno-unused-local-typedefs -Wno-variadic-macros)
--cet_report_compiler_flags()
-+#cet_set_compiler_flags(DIAGS CAUTIOUS WERROR 
-+#                       NO_UNDEFINED
-+#                       EXTRA_FLAGS -pedantic 
-+#                       EXTRA_CXX_FLAGS -D_GLIBCXX_USE_NANOSLEEP 
-+#                                       -Wno-unused-local-typedefs -Wno-variadic-macros)
-+#cet_report_compiler_flags()
- 
- # these are minimum required versions, not the actual product versions
--find_ups_product( art v1_11_00 )
--find_ups_product( genie v2_8_0 )
--find_ups_product( cetbuildtools v4_01_00 )
-+#find_ups_product( art v1_11_00 )
-+#find_ups_product( genie v2_8_0 )
-+#find_ups_product( cetbuildtools v4_01_00 )
- 
-+cmake_minimum_required(VERSION 2.8.12)
-+if(POLICY CMP0025)
-+cmake_policy(SET CMP0025 OLD)
-+endif()
-+if(POLICY CMP0042)
-+cmake_policy(SET CMP0042 NEW)
-+endif()
+@@ -1,3 +1,7 @@
++IF (ALT_CMAKE)
++INCLUDE(altCMakeLists.cmake)
++ELSE()
 +
-+project(nutools)
-+set(nutools_VERSION 1.07.00)
-+
-+
-+include(CMakePackageConfigHelpers)
-+include(GNUInstallDirs)
-+include(CheckCXXCompilerFlag)
-+
-+set(BASE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/BuildProducts")
-+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_BINDIR}")
-+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_LIBDIR}")
-+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${CMAKE_INSTALL_LIBDIR}")
-+
-+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_LIST_DIR}/Modules)
-+
-+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -g -DNDEBUG -fno-omit-frame-pointer")
-+
-+
-+find_package(ROOT 5.34.20 REQUIRED)
-+set(ROOTCINT ${ROOT_rootcint_CMD})
-+set(ROOTSYS "${ROOT_DIR}/..")
-+find_package(FNALCore 0.1.0 REQUIRED)
-+find_package(art 1.11.3 REQUIRED)
-+include(artTools)
-+find_package(CLHEP 2.2.0.3 REQUIRED)
-+find_package(Geant4 9.6.3 REQUIRED)
-+find_package(Boost 1.55.0 REQUIRED)
-+include_directories(${ROOT_INCLUDE_DIRS})
-+include_directories(${art_INCLUDE_DIRS})
-+include_directories(${FNALCore_INCLUDE_DIRS})
-+include_directories(${Boost_INCLUDE_DIR})
-+include_directories(${CLHEP_INCLUDE_DIRS})
-+
- message(STATUS "ROOTSYS is ${ROOTSYS}")
- set( ROOT_INC ${ROOTSYS}/include )
- message(STATUS "ROOT_INC is ${ROOT_INC}")
- 
- ## find_library directives
- # geant4 libraries
--cet_find_library( XERCESC NAMES xerces-c PATHS $ENV{XERCESCROOT}/lib NO_DEFAULT_PATH  )
--cet_find_library( G4FR NAMES G4FR PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4GMOCREN NAMES G4GMocren PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4OPENGL NAMES G4OpenGL PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4RAYTRACER  NAMES G4RayTracer PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4TREE  NAMES G4Tree PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4VRML  NAMES G4VRML PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4ANALYSIS  NAMES G4analysis PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4DIGITS_HITS  NAMES G4digits_hits PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4ERROR_PROPAGATION  NAMES G4error_propagation PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4EVENT  NAMES G4event PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4GEOMETRY  NAMES G4geometry PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4GL2PS  NAMES G4gl2ps PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4GLOBAL  NAMES G4global PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4GRAPHICS_REPS  NAMES G4graphics_reps PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4INTERCOMS  NAMES G4intercoms PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4INTERFACES  NAMES G4interfaces PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4MATERIALS NAMES G4materials PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4MODELING  NAMES G4modeling PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4PARMODELS  NAMES G4parmodels PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4PARTICLES  NAMES G4particles PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4PERSISTENCY  NAMES G4persistency PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4PHYSICSLISTS  NAMES G4physicslists PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4PROCESSES  NAMES G4processes PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4READOUT  NAMES G4readout PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4RUN  NAMES G4run PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4TRACK  NAMES G4track PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4TRACKING  NAMES G4tracking PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4VISHEPREP NAMES G4visHepRep PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4VISXXX NAMES G4visXXX PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4VIS_MANAGEMENT NAMES G4vis_management PATHS ENV G4LIB NO_DEFAULT_PATH )
--cet_find_library( G4ZLIB  NAMES G4zlib PATHS ENV G4LIB NO_DEFAULT_PATH )
-+find_library( XERCESC NAMES xerces-c PATHS ${XERCESCROOT}/lib NO_DEFAULT_PATH  )
-+find_library( G4FR NAMES G4FR PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4GMOCREN NAMES G4GMocren PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4OPENGL NAMES G4OpenGL PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4RAYTRACER  NAMES G4RayTracer PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4TREE  NAMES G4Tree PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4VRML  NAMES G4VRML PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4ANALYSIS  NAMES G4analysis PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4DIGITS_HITS  NAMES G4digits_hits PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4ERROR_PROPAGATION  NAMES G4error_propagation PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4EVENT  NAMES G4event PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4GEOMETRY  NAMES G4geometry PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4GL2PS  NAMES G4gl2ps PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4GLOBAL  NAMES G4global PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4GRAPHICS_REPS  NAMES G4graphics_reps PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4INTERCOMS  NAMES G4intercoms PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4INTERFACES  NAMES G4interfaces PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4MATERIALS NAMES G4materials PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4MODELING  NAMES G4modeling PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4PARMODELS  NAMES G4parmodels PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4PARTICLES  NAMES G4particles PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4PERSISTENCY  NAMES G4persistency PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4PHYSICSLISTS  NAMES G4physicslists PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4PROCESSES  NAMES G4processes PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4READOUT  NAMES G4readout PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4RUN  NAMES G4run PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4TRACK  NAMES G4track PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4TRACKING  NAMES G4tracking PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4VISHEPREP NAMES G4visHepRep PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4VISXXX NAMES G4visXXX PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4VIS_MANAGEMENT NAMES G4vis_management PATHS  ${G4LIB} NO_DEFAULT_PATH )
-+find_library( G4ZLIB  NAMES G4zlib PATHS  ${G4LIB} NO_DEFAULT_PATH )
- # other dependencies
--cet_find_library( PYTHIA6 NAMES Pythia6 PATHS ENV PYLIB NO_DEFAULT_PATH )
--cet_find_library( LHAPDF NAMES LHAPDF PATHS $ENV{LHAPDF_FQ_DIR}/lib NO_DEFAULT_PATH )
--cet_find_library( LOG4CPP NAMES log4cpp PATHS $ENV{LOG4CPP_FQ_DIR}/lib NO_DEFAULT_PATH )
--cet_find_library( XML2 NAMES xml2 PATHS $ENV{LIBXML2_FQ_DIR}/lib NO_DEFAULT_PATH )
--cet_find_library( CRY NAMES CRY PATHS $ENV{CRYHOME}/lib NO_DEFAULT_PATH )
-+find_library( PYTHIA6 NAMES Pythia6 PATHS  ${PYLIB} NO_DEFAULT_PATH )
-+find_library( LHAPDF NAMES LHAPDF PATHS ${LHAPDF_FQ_DIR}/lib NO_DEFAULT_PATH )
-+find_library( LOG4CPP NAMES log4cpp PATHS ${LOG4CPP_FQ_DIR}/lib NO_DEFAULT_PATH )
-+find_library( XML2 NAMES xml2 PATHS ${LIBXML2_FQ_DIR}/lib NO_DEFAULT_PATH )
-+find_library( CRY NAMES CRY PATHS ${CRYHOME}/lib NO_DEFAULT_PATH )
- # genie
--cet_find_library( GALGORITHM NAMES GAlgorithm PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GBARYONRESONANCE NAMES GBaryonResonance PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GBASE NAMES GBase PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GBODEKYANG NAMES GBodekYang PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GCHARM NAMES GCharm PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GCOH NAMES GCoh PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GDFRC NAMES GDfrc PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GDIS NAMES GDIS PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GCROSSSECTIONS NAMES GCrossSections PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GDECAY NAMES GDecay PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GELAS NAMES GElas PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GELFF NAMES GElFF PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GHEP NAMES GHEP PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GEVGCORE NAMES GEVGCore  PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GEVGMODULES NAMES GEVGModules PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GEVGDRIVERS NAMES GEVGDrivers PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GGIBUU NAMES GGiBUU PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GHADRONTRANSP NAMES GHadronTransp PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GFRAGMENTATION NAMES GFragmentation PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GINTERACTION NAMES GInteraction PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GLLEWELLYNSMITH NAMES GLlewellynSmith  PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GMEC NAMES GMEC PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GMESSENGER NAMES GMessenger PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GNUGAMMA NAMES GNuGamma PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GNUE NAMES GNuE PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GNTUPLE NAMES GNtuple PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GNUCLEAR NAMES GNuclear PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GNUMERICAL NAMES GNumerical PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GQPM NAMES GQPM PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GPDG NAMES GPDG PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GPDF NAMES GPDF PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GQEL NAMES GQEL PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GRES NAMES GRES PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GREGISTRY NAMES GRegistry PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GREINSEGHAL NAMES GReinSeghal PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GUTILS NAMES GUtils PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GGEO NAMES GGeo PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GFLUXDRIVERS NAMES GFluxDrivers PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GMUELOSS NAMES GMuELoss PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GREWEIGHT NAMES GReWeight PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
--cet_find_library( GNUCLEONDECAY NAMES GNucleonDecay PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
-+find_library( GALGORITHM NAMES GAlgorithm PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GBARYONRESONANCE NAMES GBaryonResonance PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GBASE NAMES GBase PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GBODEKYANG NAMES GBodekYang PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GCHARM NAMES GCharm PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GCOH NAMES GCoh PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GDFRC NAMES GDfrc PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GDIS NAMES GDIS PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GCROSSSECTIONS NAMES GCrossSections PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GDECAY NAMES GDecay PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GELAS NAMES GElas PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GELFF NAMES GElFF PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GHEP NAMES GHEP PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GEVGCORE NAMES GEVGCore  PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GEVGMODULES NAMES GEVGModules PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GEVGDRIVERS NAMES GEVGDrivers PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GGIBUU NAMES GGiBUU PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GHADRONTRANSP NAMES GHadronTransp PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GFRAGMENTATION NAMES GFragmentation PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GINTERACTION NAMES GInteraction PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GLLEWELLYNSMITH NAMES GLlewellynSmith  PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GMEC NAMES GMEC PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GMESSENGER NAMES GMessenger PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GNUGAMMA NAMES GNuGamma PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GNUE NAMES GNuE PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GNTUPLE NAMES GNtuple PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GNUCLEAR NAMES GNuclear PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GNUMERICAL NAMES GNumerical PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GQPM NAMES GQPM PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GPDG NAMES GPDG PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GPDF NAMES GPDF PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GQEL NAMES GQEL PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GRES NAMES GRES PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GREGISTRY NAMES GRegistry PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GREINSEGHAL NAMES GReinSeghal PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GUTILS NAMES GUtils PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GGEO NAMES GGeo PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GFLUXDRIVERS NAMES GFluxDrivers PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GMUELOSS NAMES GMuELoss PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GREWEIGHT NAMES GReWeight PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
-+find_library( GNUCLEONDECAY NAMES GNucleonDecay PATHS  ${GENIE_LIB} NO_DEFAULT_PATH )
- 
- # macros 
--include(ArtMake)
--include(ArtDictionary)
--include(BuildPlugins)
--include(CetRootCint)
-+#include(ArtMake)
-+#include(ArtDictionary)
-+#include(BuildPlugins)
-+#include(CetRootCint)
- 
- # include search path
- include_directories ( ${CMAKE_SOURCE_DIR} )
--include_directories ( $ENV{GENIE_INC}/GENIE )
--include_directories ( $ENV{LIBXML2_FQ_DIR}/include/libxml2 )
--include_directories ( $ENV{GEANT4_FQ_DIR}/include )
--include_directories ( $ENV{XERCES_C_INC} )
--include_directories ( $ENV{CRYHOME}/src )
--include_directories ( $ENV{LOG4CPP_INC} )
-+include_directories ( ${GENIE_INC}/GENIE )
-+include_directories ( ${LIBXML2_FQ_DIR}/include/libxml2 )
-+include_directories ( ${GEANT4_FQ_DIR}/include )
-+include_directories ( ${XERCES_C_INC} )
-+include_directories ( ${CRYHOME}/src )
-+include_directories ( ${LOG4CPP_INC} )
- # included for Mac OSX using XQuartz for X11, ignored on other systems
- include_directories ( /opt/X11/include )
- 
-@@ -160,4 +201,34 @@
- # ups - table and config files
+ # ======================================================================
+ #  nutools main build file
+ #
+@@ -161,3 +165,5 @@
  add_subdirectory(ups)
  # packaging utility
--include(UseCPack)
-+#include(UseCPack)
+ include(UseCPack)
 +
-+configure_package_config_file(
-+  Modules/nutoolsConfig.cmake.in
-+  ${CMAKE_CURRENT_BINARY_DIR}/nutoolsConfig.cmake
-+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/nutools-${nutools_VERSION}
-+  PATH_VARS
-+    CMAKE_INSTALL_INCLUDEDIR
-+    CMAKE_INSTALL_LIBDIR
-+  )
-+
-+write_basic_package_version_file(
-+  ${CMAKE_CURRENT_BINARY_DIR}/nutoolsConfigVersion.cmake
-+  VERSION ${nutools_VERSION}
-+  COMPATIBILITY AnyNewerVersion
-+  )
-+
-+install(FILES
-+  ${CMAKE_CURRENT_BINARY_DIR}/nutoolsConfig.cmake
-+  ${CMAKE_CURRENT_BINARY_DIR}/nutoolsConfigVersion.cmake
-+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/nutools-${nutools_VERSION}
-+  COMPONENT Development
-+  )
-+
-+install(EXPORT nutoolsLibraries
-+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/nutools-${nutools_VERSION}
-+  NAMESPACE nutools::
-+  COMPONENT Development
-+  )
-+
-+include(ArtCPack)
++ENDIF()
