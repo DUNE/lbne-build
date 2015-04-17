@@ -1,0 +1,401 @@
+#+TITLE: Chasing Upstream Git
+#+DATE: [2015-02-04 Wed 17:00]
+#+DESCRIPTION: After forking a Git project it can be desireable to incorporate further development in the original repository.  If git-subtrees are used that adds and extra wrinkle.  Then, toss git-flow into the picture.
+#+SETUPFILE: ~/org-pub/topics/setup.org
+
+LBNE has forked the art and LArSoft git repositories which live definitively in "upstream" Fermilab Redmine/git into repositories in the [[https://github.com/LBNE][LBNE GitHub organization]].  The fork was made to provide independent repositories for work on a "pure" CMake build system not entangled with Fermilab-local software infrastructure.  The eventual goal is to push this new build system back upstream but until that is done a method to incorporate new "upstream" development is needed.  This topic describes how that is done.
+
+For every package there are three repositories of interest:
+
+ - upstream :: the Fermilab Redmine/git repository
+ - downstream :: the GitHub repository
+ - local :: the working repository used to sync the two 
+
+* Branching policy
+
+In early development there was no consistent branching in the GitHub repository.  To efficiently track upstream this consistency must be enforced as described here. 
+
+** Upstream policy
+
+Upstream follows =git flow= and tags releases on =master=.  Two types of tags are used:
+
+ - package :: looks like =vX_YY_ZZ=
+ - suite :: looks like =<NAME>_SUITE_vX_YY_ZZ=
+
+Suite tags get placed regardless if new package tags are made.  Eg, the =cpp0x= commit tagged with =v1_04_08= has 8 different suite tags.
+
+** Downstream policy
+
+Some rules are needed to keep development of the build system itself
+and chasing upstream separate and sane.  Consistent with =git flow=
+these rules apply to what may and may not be pushed to GitHub:
+
+ - new development *must only* be done in a feature branch off of =develop=
+ - *never* merge any branch directly into =master= except a release branch during a =git flow= release
+ - *only* merge tagged upstream releases (from =upstream/master=) and only into a =git flow= release branch as part of a release.
+
+* Forging Upstream-Downstream Link
+
+The script [[../scripts/upstream.py][=upstream.py=]] provides functionality to chase upstream development according to this policy.   The script provides a series of commands:
+
+#+BEGIN_EXAMPLE
+  $ upstream.py [-C <workdir>] <command> <options> <args>
+#+END_EXAMPLE
+
+Default working directory is the current working directory.
+
+For details see:
+
+#+BEGIN_EXAMPLE
+  $ upstream.py --help
+#+END_EXAMPLE
+
+Green field setup
+
+#+BEGIN_EXAMPLE
+  $ upstream.py -C chasing init
+#+END_EXAMPLE
+
+This brings all commits and leaves local repo empty but ready for git flow.
+
+* Initial setup
+
+Most of the development in GitHub is done in =remove-ups*= branches.
+
+** art
+
+- art :: =remove-ups-1.11.3= rooted in =v1_11_03=
+
+This version is part of this release: 
+
+#+BEGIN_EXAMPLE
+  $ upstream.py -C chasing suite-release art  v1_11_03
+  v1_04_08 cpp0x
+  v1_07_02 cetlib
+  v3_01_01 fhicl-cpp
+  v1_11_14 messagefacility
+  v1_11_03 art
+#+END_EXAMPLE
+
+For the most part the non-art art packages are untouched and all the activity is in =FNALCore=
+
+*** FNALCore
+
+The purification for the four non-art art packages is done in FNALCore which incorporates them via =git-subtree=.  It's really difficult to figure out how to track this!
+
+** larsoft
+
+- larana :: =remove-ups= rooted in =v03_03_02=
+- lardata :: =remove-ups= rooted in =v03_03_02=
+- larcore :: =remove=ups= rooted in =v03_03_03=
+
+Which are part of this release:
+
+#+BEGIN_EXAMPLE
+  $ upstream.py -C chasing suite-release lar  v03_03_02
+  v03_02_03 larana
+  v03_02_02 lardata
+  v03_02_02 larevt
+  v03_03_01 larpandora
+  v03_02_02 larsim
+  v03_02_02 larcore
+  v03_02_02 lareventdisplay
+  v03_02_02 larexamples
+  v03_02_03 larreco
+  v03_03_02 larsoft
+#+END_EXAMPLE
+
+This is actually associated with using art =v1_10_00b=.  The next highest art suite which is used is =v1_12_04= by larsoft suite =v03_04_02=.
+
+
+* Test workspace
+
+Use the =upstream.py= script to test the procedure.  This keeps all changes local using bare git repositories as stand-ins for actual remotes.
+
+#+BEGIN_EXAMPLE
+  $ upstream.py -C release-4.0.0 init
+  $ cd cpp0x
+#+END_EXAMPLE
+
+Local =develop= and =master= are at disconnected initial commit.  Both upstream and downstream master are diverged.  The =upstream.py= script git-flow's the repo and I'm sitting on =develop=
+
+Pick what upstream point to merge.  
+
+- larsoft suite :: =v04_00_00=
+- art suite :: =v1_12_05=
+
+Normally one would then figure out which package-level tags correspond to these suite-level ones via:
+
+#+BEGIN_EXAMPLE
+  $ upstream -C release-4.0.0/ suite-release art v1_12_05
+  v1_04_08 cpp0x
+  v1_08_00 cetlib
+  v3_01_03 fhicl-cpp
+  v1_12_00 messagefacility
+  v1_12_05 art
+#+END_EXAMPLE
+
+In the first release however, downstream github development has already merged past some of these package level release tags.  So, for this first time we cheat a little.  Laboriously checking the history pick:
+
+#+BEGIN_EXAMPLE
+  v1_04_09 cpp0x
+  v1_09_00 cetlib
+  v3_03_00 fhicl-cpp
+  v1_14_00 messagefacility
+  v1_13_01 art
+#+END_EXAMPLE
+
+This is basically what looks like will become the next art release.
+
+** merging to release branch
+
+=cpp0x=:
+#+BEGIN_EXAMPLE
+  $ git merge downstream/master
+  $ git merge v1_04_09
+  $ git flow release start 1.04.09-p0
+  $ git push downstream release/1.04.09-p0 
+#+END_EXAMPLE
+
+=cetlib=:
+#+BEGIN_EXAMPLE
+  $ git merge downstream/master
+  $ git merge v1_09_00
+  $ git flow release start 1.09.00-p0
+  $ git push downstream release/1.09.00-p0 
+#+END_EXAMPLE
+
+=fhicl-cpp=:
+#+BEGIN_EXAMPLE
+  $ git merge downstream/master
+  $ git merge v3_03_00
+  $ git flow release start 3.03.00-p0
+  $ git push downstream release/3.03.00-p0 
+#+END_EXAMPLE
+
+=messagefacility=:
+#+BEGIN_EXAMPLE
+  $ git merge downstream/master
+  $ git merge v1_14_00
+  $ git flow release start 1.14.00-p0
+  $ git push downstream release/1.14.00-p0 
+#+END_EXAMPLE
+
+=FNALCore=:
+
+This is contains the above as git-subtrees which have been merged in
+to =downstream/update-subtrees=.
+
+Following [[https://github.com/LBNE/FNALCore#updating-the-subtrees][Ben's notes]] but modified to use our "local remotes"
+
+#+BEGIN_EXAMPLE
+  $ cd FNALCore
+
+  $ git remote add cpp0x-github ../dnstream-cpp0x.git
+  $ git remote add cetlib-github ../dnstream-cetlib.git/
+  $ git remote add messagefacility-github ../dnstream-messagefacility.git
+  $ git remote add fhicl-cpp-github ../dnstream-fhicl-cpp.git
+
+  $ git fetch cpp0x-github 
+  $ git fetch cetlib-github 
+  $ git fetch messagefacility-github 
+  $ git fetch fhicl-cpp-github 
+
+  $ git merge downstream/master
+  $ git merge downstream/update-subtrees 
+
+  $ git flow release start 1.13.01-p0
+
+  $ git subtree pull -P FNALCore/cpp0x cpp0x-github release/1.04.09-p0
+  $ git subtree pull -P FNALCore/cetlib cetlib-github release/1.09.00-p0
+  $ git subtree pull -P FNALCore/fhiclcpp fhicl-cpp-github release/3.03.00-p0  # beware dashes!
+  $ git subtree pull -P FNALCore/messagefacility messagefacility-github release/1.14.00-p0 
+
+  $ git push downstream release/1.13.01-p0 
+#+END_EXAMPLE
+
+Do a quick test build:
+
+#+BEGIN_EXAMPLE
+  $ sudo apt-get install libboost1.55-all-dev
+  $ emacs ../CMakeLists.txt # downgrade sqlite3 to 3.8.2
+
+  $ mkdir tmp
+  $ cd tmp
+  $ git clone ../dnstream-FNALCore.git 
+  $ cd dnstream-FNALCore/
+  $ git checkout -t -b release-1.13.01-p0 origin/release/1.13.01-p0 
+  $ mkdir build
+  $ cd build/
+  $ cmake ..
+#+END_EXAMPLE
+
+This then fails:
+
+#+BEGIN_EXAMPLE
+  Cannot find source file:
+  .../FNALCore/messagefacility/messagefacility/Utilities/FormatTime.h
+#+END_EXAMPLE
+
+This file was renamed in =6a334e746bd23e47b90ba6185875b4b3b8701bf5= just after =v1_13_00= to make the "=F=" be "=f=".  
+
+Testing then fails due to not having G++ 4.9, I guess:
+#+BEGIN_EXAMPLE
+  error: ‘make_unique’ is not a member of ‘std’
+#+END_EXAMPLE
+
+So, restore the SQLite version and commit the spelling fix and finish the release.
+
+#+BEGIN_EXAMPLE
+  $ git commit -a -m "Fix spelling."
+  $ git push origin release-1.13.01-p0:release/1.13.01-p0
+  $ git flow release finish 1.13.01-p0
+  $ git push downstream master
+  $ git push downstream develop
+#+END_EXAMPLE
+
+
+
+
+To the worch mobile!
+
+#+BEGIN_EXAMPLE
+  $ cd release-4.0.0
+  $ git clone git@github.com:LBNE/lbne-build.git
+  $ cd lbne-build
+  $ git flow init -d
+#+END_EXAMPLE
+
+Edit the config to build only up to FNALCore.
+
+#+BEGIN_EXAMPLE
+  $ cd release-4.0.0
+  $ virtualenv venv
+  $ source venv/bin/activate
+#+END_EXAMPLE
+
+Set =version= in =lbne-build/setup.py= to be ='art-1.13.01'= and update GCC and other art dependencies.  For now, just target building up through FNALCore.
+
+#+BEGIN_EXAMPLE
+  # on: release/art-1.13.01:0.6.0-3-gb21443e
+  $ git tag art-1.13.01rc1
+  $  python setup.py sdist
+  $  pip install dist/lbne-build-art-1.13.01.tar.gz 
+#+END_EXAMPLE
+
+Do it
+
+#+BEGIN_EXAMPLE
+  $ mkdir release-4.0.0/build-art-1.13.01
+  $ cd release-4.0.0/build-art-1.13.01
+  $ cp $VIRTUAL_ENV/share/worch/wscripts/lbne/wscript .
+  $ waf --prefix=install --orch-config=lbne/suite-art.cfg configure
+  $ waf
+#+END_EXAMPLE
+
+Problems found in lbne-build require redoing the =pip install= steps, purging the worch temporaries, reruning =waf configure= if the config changed. 
+
+Problems found in FNALCore require an awkward thing:
+
+1) Fix the code in =tmp/sources/fnalcore-*/=
+2) Either make a patch to apply to a git repository or first convert that raw source area to git control
+3) Push fix to the release branch.
+
+
+* Real thing
+
+Follow the playground in the above [[Test workspace]] but with differences:
+
+ - use real remotes
+ - do the subtree merging in the release branch to keep the hair out of develop
+
+Using the =chasing.py= script:
+
+#+BEGIN_EXAMPLE
+    $ alias chasing=`pwd`/lbne-build/scripts/chasing.py -C `pwd`/chasing-release"
+    $ chasing init art fnalcore
+    $ chasing release-start -t v1_04_09 cpp0x 1.04.09 
+    $ chasing release-start -t v1_09_00 cetlib 1.09.00
+    $ chasing release-start -t v3_03_00 fhicl-cpp 3.03.00
+    $ chasing release-start -t v1_14_00 messagefacility 1.14.00
+    $ chasing release-start             FNALCore 1.13.01
+#+END_EXAMPLE
+
+At this point =release/X.Y.Z= branches for the subtrees are made and pushed.
+
+Dealing with =FNALCore= is a special case.
+
+#+BEGIN_EXAMPLE
+    $ cd chasing-release/FNALCore
+    $ git merge downstream/update-subtrees 
+
+    $ git remote add github-cpp0x https://github.com/LBNE/fnal-cpp0x.git
+    $ git remote add github-cetlib https://github.com/LBNE/fnal-cetlib.git
+    $ git remote add github-fhicl-cpp https://github.com/LBNE/fnal-fhicl-cpp.git
+    $ git remote add github-messagefacility https://github.com/LBNE/fnal-messagefacility.git
+
+    $ for n in github-cpp0x github-cetlib github-fhicl-cpp github-messagefacility; do git fetch $n; done
+
+    $ git subtree pull -P FNALCore/cpp0x github-cpp0x release/1.04.09
+    $ git subtree pull -P FNALCore/cetlib github-cetlib release/1.09.00
+    $ git subtree pull -P FNALCore/fhiclcpp github-fhicl-cpp release/3.03.00
+    $ git subtree pull -P FNALCore/messagefacility github-messagefacility release/1.14.00
+
+    $ git push downstream release/1.13.01 
+#+END_EXAMPLE
+
+That last push is only needed so that the test build coming next with
+Worch will pick it up.  This is something Worch could handle better.
+
+Reuse the previously built =release-4.0.0/build-art-1.13.01= and =release-4.0.0/lbne-build=.
+
+Since the prior test just pushed to local-remotes, redo the =set_property= fix.
+
+#+BEGIN_EXAMPLE
+  $ cd release-4.0.0/build-art-1.13.01/tmp/sources 
+  $ rm -rf fnalcore-1.13.01-p0
+  $ ln -s /path/to/chasing-release/FNALCore fnalcore-1.13.01-p0
+  $ waf
+#+END_EXAMPLE
+
+This should reproduce the failures found previously.  To fix and commit we do a bit of evil to get a git-controlled source directory in place.  This is something that Worch should handle better.
+
+Fix the problem, commit and push.
+
+#+BEGIN_EXAMPLE
+  $ cd tmp/sources/fnalcore-1.13.01-p0
+  $ emacs FNALCore/CMakeLists.txt
+  $ git commit -a -m "Remote problematic set_property calls."
+  $ emacs FNALCore/messagefacility_module.cmake
+  $ git commit -a -m"Fix spelling of FormatTime file names."
+  $ git push downstream release/1.13.01 
+  $ cd -
+  $ waf
+  $ echo $?
+  0
+#+END_EXAMPLE
+
+At this point, =FNALCore= compiles.  Close the release.  First the subtrees:
+
+#+BEGIN_EXAMPLE
+  $ cd chasing-release/cpp0x/
+  $ git flow release finish 1.04.09
+  $ cd ../cetlib/
+  $ git flow release finish 1.09.00
+  $ cd ../fhicl-cpp/
+  $ git flow release finish 3.03.00
+  $ cd ../messagefacility/
+  $ git flow release finish 1.14.00
+#+END_EXAMPLE
+
+And, last finish =FNALCore=:
+
+#+BEGIN_EXAMPLE
+git flow release finish 1.13.01
+git push downstream master
+git push downstream develop
+git push downstream --tags
+#+END_EXAMPLE
+
+Now move =lbne-build= to use this tagged release by removing the symlink hack, editing the configuration, re-configuring waf and waf'ing.
+
